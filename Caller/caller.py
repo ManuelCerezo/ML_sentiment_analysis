@@ -9,10 +9,7 @@ import socket
 from pyspark import SparkContext
 sc = SparkContext(appName="CALLER")
 
-
-
 #CALLER TWITTER METADATA
-
 from config_twitter_access import TWITTER_BAREER_TOKEN
 client = client = tweepy.Client(TWITTER_BAREER_TOKEN)
 
@@ -52,7 +49,7 @@ def get_cripto_notice():
             #===> Si se mandan aqui se pierden varios datos debido a la rapidez:
                #sent_information(BASE_URL.format(num_page)+";"+notice.text+";"+str(datetime.datetime.strptime(fecha.text, '%d %b %Y').date())+"\n",conn)
             #===> Mejor realizar una concatenacion o bloque de 10 lineas aprox
-            
+
             line = line + BASE_URL.format(num_page)+";"+notice.text+";"+str(datetime.datetime.strptime(fecha.text, '%d %b %Y').date())+"\n"
             cantidad = cantidad + 1
     
@@ -99,5 +96,4 @@ if __name__ == "__main__":
     #get_crypto_gdelt()
     get_cripto_notice()
     #get_crypto_tweets()
-
     pass
