@@ -33,17 +33,18 @@ conn, addr = s.accept()
 
 def get_cripto_notice():
     cantidad = 0
-    num_page = 0
+    num_page = 355
     active_while = True
-
+    global conn
+    array = []
     while (active_while):
         sourceCode = requests.get(url= BASE_URL.format(num_page), headers= HEADERS, timeout=5).text
         sourceCode = BeautifulSoup(sourceCode, 'html.parser')
         if not sourceCode.find('h5',class_='card__title mb-0'):
             active_while = False
         for notice , fecha in zip(sourceCode.find_all('h5',class_='card__title mb-0'),sourceCode.find_all('h5',class_='card__date')):
-            print(BASE_URL.format(num_page),";",notice.text,";",datetime.datetime.strptime(fecha.text, '%d %b %Y').date())
-
+            #print(BASE_URL.format(num_page),";",notice.text,";",datetime.datetime.strptime(fecha.text, '%d %b %Y').date())
+            send_tweets_to_spark(BASE_URL.format(num_page)+";"+notice.text+";"+str(datetime.datetime.strptime(fecha.text, '%d %b %Y').date()),conn)
             cantidad = cantidad + 1
         num_page = num_page + 1
     print('cantidad de noticias: ',cantidad)
@@ -74,6 +75,9 @@ def get_crypto_gdelt():
         
     print('cantidad noticias: ',cantidad)
 
+def deEmojify(inputString): #quitar emoji a tweets
+    return inputString.encode('ascii', 'ignore').decode('ascii')
+
 def send_tweets_to_spark(full_tweet, tcp_connection):
     try:
         print ("------------------------------------------")
@@ -83,11 +87,8 @@ def send_tweets_to_spark(full_tweet, tcp_connection):
         e = sys.exc_info()[0]
         print("Error: %s" % e)
 
-def deEmojify(inputString): #quitar emoji a tweets
-    return inputString.encode('ascii', 'ignore').decode('ascii')
-
 if __name__ == "__main__":
     #get_crypto_gdelt()
-    #get_cripto_notice()
+    get_cripto_notice()
     #get_crypto_tweets()
     pass
