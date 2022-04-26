@@ -4,14 +4,16 @@ from bs4 import BeautifulSoup
 import requests
 import tweepy
 import socket
-import sys
+
+#SPARK REQUIRENENTS
+from pyspark import SparkContext
+sc = SparkContext(appName="CALLER")
+
+
+
 #CALLER TWITTER METADATA
 
-from config_twitter_access import *
-# auth = tweepy.OAuthHandler(TWITTER_API_KEY,TWITTER_API_KEY_SECRET)
-# auth = tweepy.OAuth1UserHandler(TWITTER_API_KEY,TWITTER_API_KEY_SECRET)
-# auth.set_access_token(TWITTER_ACCESS_TOKEN,TWITTER_ACCESS_TOKEN_SECRET)
-# api = tweepy.API(auth)
+from config_twitter_access import TWITTER_BAREER_TOKEN
 client = client = tweepy.Client(TWITTER_BAREER_TOKEN)
 
 
@@ -21,32 +23,42 @@ BASE_URL = 'https://coinmarketcal.com/en/news?page={}'
 GELPH_API_URL = 'https://api.gdeltproject.org/api/v2/doc/doc?query={} sourcelang:eng&maxrecords=250&timespan=1day&format=JSON&sort=datedesc'
 
 #SOCKET METADATA
-TCP_IP = "localhost"
-TCP_PORT = 10002
-conn = None
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.bind((TCP_IP, TCP_PORT)) #Abrimos la conexion handshake
-s.listen(1)
+HOST = "localhost"
+PORT = 12345 #puerto: 12.345
+protocolo_IPV4 = socket.AF_INET
+protocolo_TCP = socket.SOCK_STREAM
 
-print("Waiting for TCP connection...")
-conn, addr = s.accept()
+with socket.socket(protocolo_IPV4,protocolo_TCP) as mysocket: #Creación de un socket
+    mysocket.bind((HOST,PORT)) #Ponemos el socket a la escucha en el host y puerto indicado
+    mysocket.listen()
+    print("Esperando conexion de cliente...")
+    conn,addr = mysocket.accept() # se queda esperando para conexiones entrantes, cuando se establece una conexion, se devuelve la conexion y la direccion entrante (socket y direccion del cliente)
 
 def get_cripto_notice():
     cantidad = 0
-    num_page = 355
+    num_page = 0
     active_while = True
     global conn
-    array = []
+    line = ""
     while (active_while):
         sourceCode = requests.get(url= BASE_URL.format(num_page), headers= HEADERS, timeout=5).text
         sourceCode = BeautifulSoup(sourceCode, 'html.parser')
         if not sourceCode.find('h5',class_='card__title mb-0'):
             active_while = False
         for notice , fecha in zip(sourceCode.find_all('h5',class_='card__title mb-0'),sourceCode.find_all('h5',class_='card__date')):
+
             #print(BASE_URL.format(num_page),";",notice.text,";",datetime.datetime.strptime(fecha.text, '%d %b %Y').date())
-            send_tweets_to_spark(BASE_URL.format(num_page)+";"+notice.text+";"+str(datetime.datetime.strptime(fecha.text, '%d %b %Y').date()),conn)
+            #===> si se mandan aqui se pierden varios datos debido a la rapidez
+               #sent_information(BASE_URL.format(num_page)+";"+notice.text+";"+str(datetime.datetime.strptime(fecha.text, '%d %b %Y').date())+"\n",conn)
+            line = line + BASE_URL.format(num_page)+";"+notice.text+";"+str(datetime.datetime.strptime(fecha.text, '%d %b %Y').date())+"\n"
             cantidad = cantidad + 1
+            
+
+        #sent_information(line,conn)
         num_page = num_page + 1
+        sent_information(line,conn)
+        print("Datos mandados: ",cantidad)
+        
     print('cantidad de noticias: ',cantidad)
 
 def get_crypto_tweets():
@@ -78,17 +90,13 @@ def get_crypto_gdelt():
 def deEmojify(inputString): #quitar emoji a tweets
     return inputString.encode('ascii', 'ignore').decode('ascii')
 
-def send_tweets_to_spark(full_tweet, tcp_connection):
-    try:
-        print ("------------------------------------------")
-        print("Text: " + full_tweet)
-        print(tcp_connection.send(full_tweet.encode('utf-8')))
-    except:
-        e = sys.exc_info()[0]
-        print("Error: %s" % e)
+def sent_information(text, conection):
+    conection.send(text.encode('utf-8'))
+    pass
 
 if __name__ == "__main__":
     #get_crypto_gdelt()
     get_cripto_notice()
     #get_crypto_tweets()
+
     pass

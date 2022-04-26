@@ -1,31 +1,20 @@
-import findspark
-import pyspark
-findspark.init()
-sc = pyspark.SparkContext(appName="SERVER")
-from pyspark.sql.session import SparkSession
+from pyspark import SparkContext
 from pyspark.streaming import StreamingContext
-spark = SparkSession(sc)
-from operator import add
 
-sc.setLogLevel("ERROR")
-ssc = StreamingContext(sc,5000)
+#Inicializacion de Contexto
+sc = SparkContext(appName="SERVER")
+sc.setLogLevel("ERROR") ##-> Ocultar warnings 
+ssc = StreamingContext(sc,3) #lectura cada 3s
+#Procesamiento de los datos
 
-# We need to create the checkpoint
-ssc.checkpoint("checkpoint")
+lines = ssc.socketTextStream("localhost",12345)
 
-# Create a DStream that will connect to hostname:port, like localhost:9999
+#===== Procesamiento de los datos =======
 
-lines = ssc.socketTextStream("localhost", 10002)
+lines.flatMap(lambda x: x.split("\n")).map(lambda x: x.split(";")).pprint()
 
+#========================================
 
-try:
-    print(lines.pprint())
-    #    print(lines.flatMap(lambda x: x.split(' ')) \
-    #           .map(lambda word : (word, 1)) \
-    #           .reduceByKeyAndWindow(add,30,20).pprint())
-except:
-       print("se necesitan datos bro")
-
-
-ssc.start()             # Start the computation
-ssc.awaitTermination() 
+#Fin del Bucle
+ssc.start()
+ssc.awaitTermination()
