@@ -3,7 +3,8 @@ import datetime
 from bs4 import BeautifulSoup
 import requests
 import tweepy
-
+import socket
+import sys
 #CALLER TWITTER METADATA
 
 from config_twitter_access import *
@@ -19,6 +20,16 @@ HEADERS = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/
 BASE_URL = 'https://coinmarketcal.com/en/news?page={}'
 GELPH_API_URL = 'https://api.gdeltproject.org/api/v2/doc/doc?query={} sourcelang:eng&maxrecords=250&timespan=1day&format=JSON&sort=datedesc'
 
+#SOCKET METADATA
+TCP_IP = "localhost"
+TCP_PORT = 10002
+conn = None
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.bind((TCP_IP, TCP_PORT)) #Abrimos la conexion handshake
+s.listen(1)
+
+print("Waiting for TCP connection...")
+conn, addr = s.accept()
 
 def get_cripto_notice():
     cantidad = 0
@@ -32,8 +43,7 @@ def get_cripto_notice():
             active_while = False
         for notice , fecha in zip(sourceCode.find_all('h5',class_='card__title mb-0'),sourceCode.find_all('h5',class_='card__date')):
             print(BASE_URL.format(num_page),";",notice.text,";",datetime.datetime.strptime(fecha.text, '%d %b %Y').date())
-            
-            
+
             cantidad = cantidad + 1
         num_page = num_page + 1
     print('cantidad de noticias: ',cantidad)
@@ -64,7 +74,14 @@ def get_crypto_gdelt():
         
     print('cantidad noticias: ',cantidad)
 
-   
+def send_tweets_to_spark(full_tweet, tcp_connection):
+    try:
+        print ("------------------------------------------")
+        print("Text: " + full_tweet)
+        print(tcp_connection.send(full_tweet.encode('utf-8')))
+    except:
+        e = sys.exc_info()[0]
+        print("Error: %s" % e)
 
 def deEmojify(inputString): #quitar emoji a tweets
     return inputString.encode('ascii', 'ignore').decode('ascii')
