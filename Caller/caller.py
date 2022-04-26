@@ -47,14 +47,15 @@ def get_cripto_notice():
             active_while = False
         for notice , fecha in zip(sourceCode.find_all('h5',class_='card__title mb-0'),sourceCode.find_all('h5',class_='card__date')):
 
+            #===> Printeamos la noticia: 
             #print(BASE_URL.format(num_page),";",notice.text,";",datetime.datetime.strptime(fecha.text, '%d %b %Y').date())
-            #===> si se mandan aqui se pierden varios datos debido a la rapidez
+            #===> Si se mandan aqui se pierden varios datos debido a la rapidez:
                #sent_information(BASE_URL.format(num_page)+";"+notice.text+";"+str(datetime.datetime.strptime(fecha.text, '%d %b %Y').date())+"\n",conn)
+            #===> Mejor realizar una concatenacion o bloque de 10 lineas aprox
+            
             line = line + BASE_URL.format(num_page)+";"+notice.text+";"+str(datetime.datetime.strptime(fecha.text, '%d %b %Y').date())+"\n"
             cantidad = cantidad + 1
-            
-
-        #sent_information(line,conn)
+    
         num_page = num_page + 1
         sent_information(line,conn)
         print("Datos mandados: ",cantidad)
