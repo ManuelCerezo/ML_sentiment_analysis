@@ -63,14 +63,14 @@ def get_crypto_gdelt():
     #     print(request['title'],'\n')
         
     print('cantidad noticias: ',cantidad)
-    
-        
+
+   
 
 def deEmojify(inputString): #quitar emoji a tweets
     return inputString.encode('ascii', 'ignore').decode('ascii')
 
 if __name__ == "__main__":
     #get_crypto_gdelt()
-    get_cripto_notice()
+    #get_cripto_notice()
     #get_crypto_tweets()
     pass
