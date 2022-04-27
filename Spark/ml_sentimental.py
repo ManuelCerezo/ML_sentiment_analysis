@@ -12,6 +12,7 @@ from collections import Counter
 df = pd.read_csv("./dataset/dataset.csv")
 # print("shape of news train dataset:",df.shape)
 # print(df.head())
+train_size = int(df.shape[0]*0.8)
 
 #stopwords
 mystopwords = set(stopwords.words("english"))
@@ -49,10 +50,28 @@ def print_most_counter(counter):
 
 if __name__ == '__main__':
   
+  #TEXT PROCCESING
   df["news"] = df.news.map(remove_punct)
   df["news"] = df.news.map(remove_stopwords)
+
+  #TEXT SEQUENCE
   words = counter_words(df.news)
-  
   print_most_counter(words)
-  print(df.head())
-  pass
+
+  #SPLIT DATASET IN TRAIN AND VALIDATE
+  train_df = df[:train_size]
+  val_df = df[train_size:]
+  # print("shape of train:",train_df.shape)
+  # print("shape of validation: ",val_df.shape)
+
+  #CREACION DE CONJUNTOS DE ENTRENAMIENTO
+  train_news = train_df.news.to_numpy()
+  train_target = train_df.target.to_numpy()
+  validation_news = val_df.news.to_numpy()
+  validation_target = val_df.target.to_numpy()
+  # print("train news shape:",train_news.shape[0])
+  # print("validation news shape:",validation_news.shape[0])
+
+
+  
+  
