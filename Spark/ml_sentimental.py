@@ -1,12 +1,15 @@
+import string
+
+import nltk
 import numpy as np
 import pandas as pd
 import tensorflow as tf
-import string
-import nltk
 nltk.download("stopwords")
-from nltk.corpus import stopwords
 from collections import Counter
 
+from nltk.corpus import stopwords
+from tensorflow.keras.preprocessing.sequence import pad_sequences
+from tensorflow.keras.preprocessing.text import Tokenizer
 
 #Lectura del dataset.
 df = pd.read_csv("./dataset/dataset.csv")
@@ -42,7 +45,7 @@ def counter_words(text_col):
   return count
 
 def print_most_counter(counter):
-  print("\nDIFERENT WORDS:",len(words))
+  print("\nDIFERENT WORDS:",len(counter))
   print("5 MOST COMMON WORDS:  ")
   for section in counter.most_common(5):
     print("  - "+str(section[0])+" : "+str(section[1]))
@@ -55,8 +58,9 @@ if __name__ == '__main__':
   df["news"] = df.news.map(remove_stopwords)
 
   #TEXT SEQUENCE
-  words = counter_words(df.news)
-  print_most_counter(words)
+  counter_news = counter_words(df.news)
+  print_most_counter(counter_news)
+  cantidad_news = len(counter_news)
 
   #SPLIT DATASET IN TRAIN AND VALIDATE
   train_df = df[:train_size]
@@ -71,7 +75,21 @@ if __name__ == '__main__':
   validation_target = val_df.target.to_numpy()
   # print("train news shape:",train_news.shape[0])
   # print("validation news shape:",validation_news.shape[0])
-
-
   
+
+  #TOKENIZACION DE LOS DATOS.
+  # Vectorize a text corpus by turning each text into a sequence of integers
+  # Necesitamos el numero de palabras distintas (unique words)
+  tokenizer = Tokenizer(num_words=cantidad_news)
+  tokenizer.fit_on_texts(train_news)
+  word_index = tokenizer.word_index #genera un diccionario de palabras unico con un indice correpondiente a la popularidad de la palabra. populalridad: 1 > 10
+  #cuando 'fiteamos' un texto, obtenemos el word
   
+
+  #Ahora podemos generar las sequencias de textos,
+  # (cambiando palabras por sus correspondientes indices),
+  # (lo hace con el word index, cosa que tiene dentro ya el objeto)
+  news_train_sequences = tokenizer.texts_to_sequences(train_news)
+  news_validation_sequences = tokenizer.texts_to_sequences(validation_news)
+  # print(train_news[0])
+  # print(news_train_sequences[0])
