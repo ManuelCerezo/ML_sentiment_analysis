@@ -42,7 +42,7 @@ def counter_words(text_col):
 
 def print_most_counter(counter):
   print("\nDIFERENT WORDS:",len(words))
-  print("5 MOST COMMON WORDS: ")
+  print("5 MOST COMMON WORDS:  ")
   for section in counter.most_common(5):
     print("  - "+str(section[0])+" : "+str(section[1]))
   print("\n")
