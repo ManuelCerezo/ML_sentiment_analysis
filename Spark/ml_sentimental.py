@@ -41,7 +41,8 @@ def counter_words(text_col):
   return count
 
 def print_most_counter(counter):
-  print("\n5 MOST COMMON WORDS: ")
+  print("\nDIFERENT WORDS:",len(words))
+  print("5 MOST COMMON WORDS: ")
   for section in counter.most_common(5):
     print("  - "+str(section[0])+" : "+str(section[1]))
   print("\n")
@@ -51,7 +52,7 @@ if __name__ == '__main__':
   df["news"] = df.news.map(remove_punct)
   df["news"] = df.news.map(remove_stopwords)
   words = counter_words(df.news)
-  print("diferent words:",len(words))
+  
   print_most_counter(words)
   print(df.head())
   pass
