@@ -127,7 +127,7 @@ model.compile(loss= loss,optimizer = optim,metrics = metrics)
 model.fit(train_news_padded,train_target,epochs = 20, validation_data=(val_news_padded,validation_target),verbose = 2)
 
 
-
+#PREDICIONES DE PRUEBA:
 predictions = model.predict(val_news_padded)
 # print(predictions)
 # print(validation_news,validation_target)
