@@ -115,7 +115,6 @@ model.add(layers.LSTM(64,dropout=0.1))
 model.add(layers.Dense(1,activation="sigmoid"))
 model.summary()
 
-
 #CREACION DEL COMPILE
 loss = keras.losses.BinaryCrossentropy(from_logits=False)
 optim = keras.optimizers.Adam(lr=0.001)
