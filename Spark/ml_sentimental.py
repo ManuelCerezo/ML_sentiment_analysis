@@ -2,17 +2,16 @@ import string
 from tabnanny import verbose
 
 import nltk
-import numpy as np
 import pandas as pd
-import tensorflow as tf
 nltk.download("stopwords")
 from collections import Counter
 
 from nltk.corpus import stopwords
-from tensorflow.keras.preprocessing.sequence import pad_sequences
-from tensorflow.keras.preprocessing.text import Tokenizer
-from tensorflow.keras import layers
+from keras.preprocessing.sequence import pad_sequences
+from keras.preprocessing.text import Tokenizer
+from keras import layers
 from tensorflow import keras
+
 
 #Lectura del dataset.
 df = pd.read_csv("./dataset/dataset.csv")
@@ -116,6 +115,7 @@ model.add(layers.LSTM(64,dropout=0.1))
 model.add(layers.Dense(1,activation="sigmoid"))
 model.summary()
 
+
 #CREACION DEL COMPILE
 loss = keras.losses.BinaryCrossentropy(from_logits=False)
 optim = keras.optimizers.Adam(lr=0.001)
@@ -129,5 +129,5 @@ model.fit(train_news_padded,train_target,epochs = 20, validation_data=(val_news_
 
 #PREDICIONES DE PRUEBA:
 predictions = model.predict(val_news_padded)
-# print(predictions)
-# print(validation_news,validation_target)
+print(predictions)
+print(validation_target)
