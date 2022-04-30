@@ -112,15 +112,16 @@ val_news_padded = pad_sequences(news_validation_sequences, maxlen=max_length, pa
 model = keras.models.Sequential()
 model.add(layers.Embedding(cantidad_news,32,input_length = max_length))
 model.add(layers.LSTM(64,dropout=0.1))
-model.add(layers.Dense(1,activation="sigmoid"))
+model.add(layers.Dense(1, activation='softmax'))
 model.summary()
 
 #CREACION DEL COMPILE
-loss = keras.losses.BinaryCrossentropy(from_logits=False)
+loss = keras.losses.CategoricalCrossentropy()
 optim = keras.optimizers.Adam(lr=0.001)
 metrics = ["accuracy"]
 
-model.compile(loss= loss,optimizer = optim,metrics = metrics)
+#model.compile(loss= loss,optimizer = optim,metrics = metrics)
+model.compile(loss = loss, optimizer= optim,metrics=['accuracy'])
 
 #ENTRENAMIENTO DEL MODELO:
 model.fit(train_news_padded,train_target,epochs = 20, validation_data=(val_news_padded,validation_target),verbose = 2)
