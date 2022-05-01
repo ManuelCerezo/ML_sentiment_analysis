@@ -47,14 +47,14 @@ def get_cripto_notice():
             #===> Printeamos la noticia: 
             #print(BASE_URL.format(num_page),";",notice.text,";",datetime.datetime.strptime(fecha.text, '%d %b %Y').date())
             #===> Si se mandan aqui se pierden varios datos debido a la rapidez:
-               #sent_information(BASE_URL.format(num_page)+";"+notice.text+";"+str(datetime.datetime.strptime(fecha.text, '%d %b %Y').date())+"\n",conn)
+            sent_information(BASE_URL.format(num_page)+";"+notice.text+";"+str(datetime.datetime.strptime(fecha.text, '%d %b %Y').date())+"\n",conn)
             #===> Mejor realizar una concatenacion o bloque de 10 lineas aprox
 
-            line = line + BASE_URL.format(num_page)+";"+notice.text+";"+str(datetime.datetime.strptime(fecha.text, '%d %b %Y').date())+"\n"
+            #line = line + BASE_URL.format(num_page)+";"+notice.text+";"+str(datetime.datetime.strptime(fecha.text, '%d %b %Y').date())+"\n"
             cantidad = cantidad + 1
     
         num_page = num_page + 1
-        sent_information(line,conn)
+        #sent_information(line,conn)
         print("Datos mandados: ",cantidad)
         
     print('cantidad de noticias: ',cantidad)
