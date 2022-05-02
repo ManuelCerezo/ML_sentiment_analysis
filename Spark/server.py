@@ -14,19 +14,10 @@ spark = SparkSession(sc)
 vader_analyzer = SentimentIntensityAnalyzer()
 lines = ssc.socketTextStream("localhost",12345)
 
-def getSparkSessionInstance(sparkConf):
-    if ('sparkSessionSingletonInstance' not in globals()):
-        globals()['sparkSessionSingletonInstance'] = SparkSession\
-            .builder\
-            .config(conf=sparkConf)\
-            .getOrCreate()
-    return globals()['sparkSessionSingletonInstance']
-
 def data_serialize(rdd):
         global spark
-        global df
-        spark = getSparkSessionInstance(rdd.context.getConf())
 
+        # spark = getSparkSessionInstance(rdd.context.getConf())
         try: #Creacion de dataframe de ventana de trabajo
             rowRdd = rdd.map(lambda x: Row( fuente = x[0],url=x[1],news = x[2],notice_date=x[3],\
                 vader_polarity = vader_analyzer.polarity_scores(x[2])['compound']\
@@ -48,7 +39,7 @@ def select_date_to_dataframeSQL(): #Obtener datos del dataframe
                 )
     print(df_subset.show())
     print(df_subset.count())
-    pass
+    
         
 #===== Procesamiento de los datos =======
 datos = lines.window(30,5).map(lambda x:x.split(';'))
