@@ -13,37 +13,28 @@ from pyspark.sql.types import IntegerType
 from pyspark.sql.functions import *
 from pyspark.sql.types import *
 from pyspark.ml.feature import VectorAssembler
-from pyspark.ml.classification import LogisticRegression
+from pyspark.ml.classification import LogisticRegression,LogisticRegressionModel
 
-def read_csv():
+
+
+def negative_positive_models():
+
     df=spark.read.csv('data.csv',inferSchema=True,header=True)
-    return df
 
-def tokenizazor(df=read_csv()):
     tokenization=Tokenizer(inputCol='news',outputCol='tokens')
     tokenized_df=tokenization.transform(df)
-    return tokenized_df
-    
-def remove_stopwords(tokenized_df=tokenizazor()):
+
     stopword_removal=StopWordsRemover(inputCol='tokens',outputCol='refined_tokens')
     refined_df=stopword_removal.transform(tokenized_df)
-    return refined_df
 
-def vectorizer(refined_df=remove_stopwords()):
     count_vec=CountVectorizer(inputCol='refined_tokens',outputCol='features')
     cv_df=count_vec.fit(refined_df).transform(refined_df)
-    return cv_df
 
-def colum_token_count(cv_df=vectorizer()):
     len_udf = udf(lambda s: len(s), IntegerType())
     refined_text_df = cv_df.withColumn("token_count", len_udf(col('refined_tokens')))
-    return refined_text_df
 
-def cast_to_float_label(refined_text_df=colum_token_count()):
     refined_text_df = refined_text_df.withColumn("Label", refined_text_df.final_manual_labelling.cast('float')).drop('final_manual_labelling')
-    return refined_text_df
 
-def negative_positive_models(refined_text_df=cast_to_float_label()):
     funct_negative_label = udf(lambda x: 1.00 if x == -1 else 0.00, FloatType())
     func_positive_label = udf(lambda x: 1.00 if x == 1 else 0.00, FloatType())
 
@@ -58,6 +49,9 @@ def negative_positive_models(refined_text_df=cast_to_float_label()):
     training_df_positive,test_df_positive=model_text_df.randomSplit([0.75,0.25])
     log_reg_positive = LogisticRegression(featuresCol='features_vec',labelCol='LabelPositive').fit(training_df_positive)
     log_reg_negative = LogisticRegression(featuresCol='features_vec',labelCol='LabelNegative').fit(training_df_negative)
+    #Guardamos los modelos
+    # log_reg_negative.write().save("./model_neg")
+    # log_reg_positive.write().save("./model_pos")
     results_positive = log_reg_positive.evaluate(test_df_positive).predictions
     results_negative = log_reg_negative.evaluate(test_df_negative).predictions
     view_results(results_positive,"Positive Model")
@@ -80,5 +74,38 @@ def view_results(result,model):
 
 
 
+def predict(data):
+
+    model_neg = LogisticRegressionModel.load("model_neg")
+    model_pos = LogisticRegressionModel.load("model_pos")
+
+    df = spark.createDataFrame([(data,)], ["data"])
+
+    tokenization=Tokenizer(inputCol='data',outputCol='tokens')
+    df=tokenization.transform(df)
+
+    stopword_removal=StopWordsRemover(inputCol='tokens',outputCol='refined_tokens')
+    df=stopword_removal.transform(df)
+
+    count_vec=CountVectorizer(inputCol='refined_tokens',outputCol='features')
+    df=count_vec.fit(df).transform(df)
+
+    len_udf = udf(lambda s: len(s), IntegerType())
+    df = df.withColumn("token_count", len_udf(col('refined_tokens')))
+
+    df_assembler = VectorAssembler(inputCols=['features','token_count'],outputCol='features_vec')
+    df = df_assembler.transform(df)
+
+    return model_pos.predict(df.head().features_vec),model_neg.predict(df.head().features_vec)
+
+
+
+
+
+
+
 if __name__ == "__main__":
-    negative_positive_models()
+    #No funciona
+    print(predict('Visa announces crypto partnership with neobank focused on services for Black communities'))
+    
+    

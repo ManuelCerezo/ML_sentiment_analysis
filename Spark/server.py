@@ -28,8 +28,6 @@ model_pos = LogisticRegressionModel.load("../Modelo_ML/model_pos")
 
 print(type(model_neg))
 
-model_neg.evaluate()
-
 #========================================
 
 # #Fin del Bucle
