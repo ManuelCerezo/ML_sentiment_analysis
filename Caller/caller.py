@@ -36,7 +36,6 @@ def get_cripto_notice():
     num_page = 0
     active_while = True
     global conn
-    line = ""
     while (active_while):
         sourceCode = requests.get(url= BASE_URL.format(num_page), headers= HEADERS, timeout=5).text
         sourceCode = BeautifulSoup(sourceCode, 'html.parser')
@@ -44,13 +43,8 @@ def get_cripto_notice():
             active_while = False
         for notice , fecha in zip(sourceCode.find_all('h5',class_='card__title mb-0'),sourceCode.find_all('h5',class_='card__date')):
 
-            #===> Printeamos la noticia: 
-            #print(BASE_URL.format(num_page),";",notice.text,";",datetime.datetime.strptime(fecha.text, '%d %b %Y').date())
-            #===> Si se mandan aqui se pierden varios datos debido a la rapidez:
             sent_information("cointmarket"+";"+BASE_URL.format(num_page)+";"+notice.text+";"+str(datetime.datetime.strptime(fecha.text, '%d %b %Y').date())+"\n",conn)
-            #===> Mejor realizar una concatenacion o bloque de 10 lineas aprox
 
-            #line = line + BASE_URL.format(num_page)+";"+notice.text+";"+str(datetime.datetime.strptime(fecha.text, '%d %b %Y').date())+"\n"
             cantidad = cantidad + 1
     
         num_page = num_page + 1
