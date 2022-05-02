@@ -22,7 +22,7 @@ GELPH_API_URL = 'https://api.gdeltproject.org/api/v2/doc/doc?query={} sourcelang
 
 #SOCKET METADATA
 HOST = "localhost"
-PORT = 12348 #puerto: 12.345
+PORT = 12345 #puerto: 12.345
 protocolo_IPV4 = socket.AF_INET
 protocolo_TCP = socket.SOCK_STREAM
 
@@ -45,6 +45,7 @@ def get_cripto_notice():
 
         for notice , fecha in zip(sourceCode.find_all('h5',class_='card__title mb-0'),sourceCode.find_all('h5',class_='card__date')):
             now = datetime.datetime.now() 
+            #print("cointmarket"+";"+BASE_URL.format(num_page)+";"+notice.text+";"+str(datetime.datetime.strptime(fecha.text, '%d %b %Y').date())+";"+str(now.time())+"\n")
             sent_information("cointmarket"+";"+BASE_URL.format(num_page)+";"+notice.text+";"+str(datetime.datetime.strptime(fecha.text, '%d %b %Y').date())+";"+str(now.time())+"\n",conn)
             cantidad = cantidad + 1
     
