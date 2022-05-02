@@ -5,6 +5,7 @@ import requests
 import tweepy
 import socket
 
+
 #SPARK REQUIRENENTS
 from pyspark import SparkContext
 sc = SparkContext(appName="CALLER")
@@ -21,7 +22,7 @@ GELPH_API_URL = 'https://api.gdeltproject.org/api/v2/doc/doc?query={} sourcelang
 
 #SOCKET METADATA
 HOST = "localhost"
-PORT = 12345 #puerto: 12.345
+PORT = 12348 #puerto: 12.345
 protocolo_IPV4 = socket.AF_INET
 protocolo_TCP = socket.SOCK_STREAM
 
@@ -41,10 +42,10 @@ def get_cripto_notice():
         sourceCode = BeautifulSoup(sourceCode, 'html.parser')
         if not sourceCode.find('h5',class_='card__title mb-0'):
             active_while = False
+
         for notice , fecha in zip(sourceCode.find_all('h5',class_='card__title mb-0'),sourceCode.find_all('h5',class_='card__date')):
-
-            sent_information("cointmarket"+";"+BASE_URL.format(num_page)+";"+notice.text+";"+str(datetime.datetime.strptime(fecha.text, '%d %b %Y').date())+"\n",conn)
-
+            now = datetime.datetime.now() 
+            sent_information("cointmarket"+";"+BASE_URL.format(num_page)+";"+notice.text+";"+str(datetime.datetime.strptime(fecha.text, '%d %b %Y').date())+";"+str(now.time())+"\n",conn)
             cantidad = cantidad + 1
     
         num_page = num_page + 1
