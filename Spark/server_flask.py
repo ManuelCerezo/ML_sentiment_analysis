@@ -1,12 +1,13 @@
 from flask import Flask, request,render_template
-import requests
+from flask_cors import CORS
 
 app = Flask(__name__)
+cors = CORS(app, resources={r"/puerta-enlace/*":{"origins":"*"}})
 
 vader_analyzer_data = []
 process_time_data = []
 
-@app.route('/setdatos',methods=['POST'])
+@app.route('/puerta-enlace/setdatos',methods=['POST'])
 def set_data():
     global vader_analyzer_data
     global process_time_data
@@ -16,7 +17,7 @@ def set_data():
 
     return {"status":"ok"}
 
-@app.route('/getdatos',methods=['POST'])
+@app.route('/puerta-enlace/getdatos',methods=['GET'])
 def get_data():
     global vader_analyzer_data
     global process_time_data

@@ -39,7 +39,7 @@ def data_serialize(rdd):
     b = df['vader_polarity'].values.tolist()
     ##### SEND TO WEB SERVER ####
     try:
-        r = requests.post('http://localhost:5000/setdatos', json={
+        r = requests.post('http://localhost:5000/puerta-enlace/setdatos', json={
             "process_time": a,
             "vader_polarity": b
         })
