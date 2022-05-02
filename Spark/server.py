@@ -1,4 +1,4 @@
-from cProfile import label
+import requests
 from typing import Text
 from pyspark import Row, SparkContext
 from pyspark.streaming import StreamingContext
@@ -32,15 +32,24 @@ def data_serialize(rdd):
     df = spark.createDataFrame(rowRdd) #Almacenamos los datos temporalmente
     df.createOrReplaceTempView("cryptonews")
     df.show(5)
-
-
+    df = df.toPandas()
     
-def prueba(): #Obtener datos del dataframe
-    df_subset = spark.sql(
-                    """
-                    select fuente, news, vader_polarity, process_time from cryptonews
-                    """
-                )
+    #print(df['fuente'].values.tolist())
+    a = df['process_time'].values.tolist()
+    b = df['vader_polarity'].values.tolist()
+    ##### SEND TO WEB SERVER ####
+    try:
+        r = requests.post('http://localhost:5000/setdatos', json={
+            "process_time": a,
+            "vader_polarity": b
+        })
+    except:
+        print("Error al mandar los datos al servidor web")
+
+
+
+def prueba(): #FUNCION PARA HACER PRUEBAS
+    df_subset = spark.sql("select fuente, news, vader_polarity, process_time from cryptonews")
     print(df_subset.show())
     print(df_subset.count())
 
