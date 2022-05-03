@@ -22,31 +22,41 @@ lines = ssc.socketTextStream("localhost",12345)
 def data_serialize(rdd):
     global spark
     global vader_analyzer
-
-    #Creacion de dataframe de ventana de trabajo
-    rowRdd = rdd.map(lambda x: Row( fuente = x[0],url=x[1],news = x[2],notice_date=x[3],\
-        vader_polarity = vader_analyzer.polarity_scores(x[2])['compound']\
-            ,textblob_polarity = TextBlob(x[2]).sentiment.polarity,\
-                process_time = x[4]))
-
-    df = spark.createDataFrame(rowRdd) #Almacenamos los datos temporalmente
-    df.createOrReplaceTempView("cryptonews")
+    print(type(rdd))
+    #print(rdd.collect())
+    df = rdd.toDF(['fuente','url','notice','notice-date','process-date'])
     df.show(5)
-    print("tamaño: ",df.count())
-    df = df.toPandas()
+    #df = spark.createDataFrame(['data0','data1','data2','data3','data4'],rdd[0])
+    #Creacion de dataframe de ventana de trabajo
+    # rowRdd = rdd.map(lambda x: Row( fuente = x[0],url=x[1],news = x[2],notice_date=x[3],\
+    #     vader_polarity = vader_analyzer.polarity_scores(x[2])['compound']\
+    #         ,textblob_polarity = TextBlob(x[2]).sentiment.polarity,\
+    #             process_time = x[4]))
+
+    # df = spark.createDataFrame(rowRdd) #Almacenamos los datos temporalmente
+    # df.createOrReplaceTempView("cryptonews")
+    # #df.show(5)
+    # print("tamaño: ",df.count())
+    # df = df.toPandas()
     
-    #print(df['fuente'].values.tolist())
-    a = df['process_time'].values.tolist()
-    b = df['vader_polarity'].values.tolist()
+    # #print(df['fuente'].values.tolist())
+    # a = df['process_time'].values.tolist()
+    # b = df['vader_polarity'].values.tolist()
+    
+
+def send_to_server():
+    ## obtener datos del dataframe
     ##### SEND TO WEB SERVER ####
     try:
         r = requests.post('http://localhost:5000/puerta-enlace/setdatos', json={
-            "process_time": a,
-            "vader_polarity": b
+            "process_time": 'a',
+            "vader_polarity": 'a'
         })
     except:
         print("Error al mandar los datos al servidor web")
 
+
+    pass
 
 
 def prueba(): #FUNCION PARA HACER PRUEBAS
@@ -56,9 +66,7 @@ def prueba(): #FUNCION PARA HACER PRUEBAS
 
 
 #===== Procesamiento de los datos =======
-datos = lines.window(10,3).map(lambda x:x.split(';'))
-#datos.window(30,10).map(lambda x: TextBlob(x[2])).pprint()
-datos.foreachRDD(data_serialize)
+lines.window(10,3).map(lambda x:x.split(';')).foreachRDD(data_serialize)
 #========================================
 
 #Fin del Bucle
