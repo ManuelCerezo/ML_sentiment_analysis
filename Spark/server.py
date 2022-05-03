@@ -1,5 +1,5 @@
 import requests
-from pyspark import Row, SparkContext
+from pyspark import SparkContext
 from pyspark.streaming import StreamingContext
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 from pyspark.sql.session import SparkSession
@@ -24,9 +24,9 @@ apply_vader = udf(lambda x: vader_analyzer.polarity_scores(x)['compound'],FloatT
 apply_textBlob = udf(lambda x: TextBlob(x).sentiment.polarity,FloatType())
 
 def data_serialize(rdd):    
-    df = rdd.toDF(['fuente','url','notice','notice-date','process-date'])
-    df = df.withColumn("vader-polarity", apply_vader(col('notice')))
-    df = df.withColumn("textBlob-polarity", apply_textBlob(col('notice')))
+    df = rdd.toDF(['fuente','url','notice','notice_date','process_date'])
+    df = df.withColumn("vader_polarity", apply_vader(col('notice')))
+    df = df.withColumn("textBlob_polarity", apply_textBlob(col('notice')))
     df.createOrReplaceTempView("cryptonews")
     send_to_server()
 
@@ -34,18 +34,21 @@ def data_serialize(rdd):
 
 def send_to_server():
     global spark
+    data_to_sent = {}
+
     ## obtener datos del dataframe
     ##### SEND TO WEB SERVER ####
-    df = spark.sql('select  from cryptonews')
+    df = spark.sql('select vader_polarity, textBlob_polarity, process_date from cryptonews')
     df.show(5)
+    data_to_sent['labels'] = df.select("process_date").toPandas().values.tolist()
+    data_to_sent['vader'] = df.select("vader_polarity").toPandas().values.tolist()
+    data_to_sent['textblob'] = df.select("textBlob_polarity").toPandas().values.tolist()
 
-    # try:
-    #     r = requests.post('http://localhost:5000/puerta-enlace/setdatos', json={
-    #         "process_time": 'a',
-    #         "vader_polarity": 'a'
-    #     })
-    # except:
-    #     print("Error al mandar los datos al servidor web")
+    
+    r = requests.post('http://localhost:5000/puerta-enlace/setdatos', json={
+        "data": data_to_sent
+    })
+    
 
 
 #===== Procesamiento de los datos =======

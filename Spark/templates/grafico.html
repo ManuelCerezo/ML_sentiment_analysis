@@ -34,12 +34,20 @@
       ];
       const data = {
         labels: labels,
-        datasets: [{
+        datasets: [
+          {
           label: 'Vader Sentiment',
           backgroundColor: 'rgb(255, 99, 132)',
           borderColor: 'rgb(255, 99, 132)',
           data: [0],
-        }],
+        },{
+          label: 'Text Blob',
+          backgroundColor: 'rgb(25, 99, 132)',
+          borderColor: 'rgb(205, 99, 132)',
+          data: [0],
+        }
+      
+      ],
       };
 
       const config = {
@@ -57,14 +65,11 @@
                 'http://localhost:5000/puerta-enlace/getdatos',      // At this URL
                 {},                                // With no extra parameters
                 function(data){
-                  console.log(data)
                   var i = 0
-                  labels = data.labels
-                  data = data.data_process
-
-                  for(i = 0;i<labels.length;i++){
+                  
+                  for(i = 0;i<data.labels.length;i++){
                     //Modificar data por que es un diccionario
-                    addData(myChart,labels[i],data[i])
+                    addData(myChart,data.labels[i],data.data[i])
                   }
                 }
             );
