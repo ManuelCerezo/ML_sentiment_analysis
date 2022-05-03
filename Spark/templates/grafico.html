@@ -35,11 +35,11 @@
       const data = {
         labels: labels,
         datasets: [{
-          label: 'My First dataset',
+          label: 'Vader Sentiment',
           backgroundColor: 'rgb(255, 99, 132)',
           borderColor: 'rgb(255, 99, 132)',
           data: [0,],
-        }]
+        }],
       };
 
       const config = {
@@ -58,12 +58,16 @@
                 {},                                // With no extra parameters
                 function(data){
                   console.log(data)
+                  var i = 0
                   labels = data.process_time_data
                   data = data.vader_analyzer_data
-                  //addData(myChart,labels,data)
+
+                  for(i = 0;i<labels.length;i++){
+                    addData(myChart,labels[i],data[i])
+                  }
                 }
             );
-          },1000); 
+          },3000); 
     </script>
     
   </body>

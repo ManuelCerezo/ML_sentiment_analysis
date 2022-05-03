@@ -32,6 +32,7 @@ def data_serialize(rdd):
     df = spark.createDataFrame(rowRdd) #Almacenamos los datos temporalmente
     df.createOrReplaceTempView("cryptonews")
     df.show(5)
+    print("tamaño: ",df.count())
     df = df.toPandas()
     
     #print(df['fuente'].values.tolist())
@@ -55,7 +56,7 @@ def prueba(): #FUNCION PARA HACER PRUEBAS
 
 
 #===== Procesamiento de los datos =======
-datos = lines.window(10,2).map(lambda x:x.split(';'))
+datos = lines.window(10,3).map(lambda x:x.split(';'))
 #datos.window(30,10).map(lambda x: TextBlob(x[2])).pprint()
 datos.foreachRDD(data_serialize)
 #========================================
