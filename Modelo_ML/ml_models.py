@@ -96,6 +96,8 @@ def predict(data):
     df_assembler = VectorAssembler(inputCols=['features','token_count'],outputCol='features_vec')
     df = df_assembler.transform(df)
 
+    #HAy que realizar un padding
+
     return model_pos.predict(df.head().features_vec),model_neg.predict(df.head().features_vec)
 
 
