@@ -38,7 +38,7 @@
           label: 'Vader Sentiment',
           backgroundColor: 'rgb(255, 99, 132)',
           borderColor: 'rgb(255, 99, 132)',
-          data: [0,],
+          data: [0],
         }],
       };
 
@@ -59,10 +59,11 @@
                 function(data){
                   console.log(data)
                   var i = 0
-                  labels = data.process_time_data
-                  data = data.vader_analyzer_data
+                  labels = data.labels
+                  data = data.data_process
 
                   for(i = 0;i<labels.length;i++){
+                    //Modificar data por que es un diccionario
                     addData(myChart,labels[i],data[i])
                   }
                 }

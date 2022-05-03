@@ -5,26 +5,26 @@ from flask_cors import CORS
 app = Flask(__name__,template_folder="templates")
 cors = CORS(app, resources={r"/puerta-enlace/*":{"origins":"*"}})
 numero = 0
-vader_analyzer_data = []
-process_time_data = []
+data_process = []
+labels = []
 
 @app.route('/puerta-enlace/setdatos',methods=['POST'])
 def set_data():
-    global vader_analyzer_data
-    global process_time_data
+    global data_process
+    global labels
 
-    vader_analyzer_data = request.json["vader_polarity"]
-    process_time_data = request.json["process_time"]
+    data_process = request.json["data_procces"]
+    labels = request.json["labels"]
 
     return {"status":"ok"}
 
 @app.route('/puerta-enlace/getdatos',methods=['GET'])
 def get_data():
-    global vader_analyzer_data
-    global process_time_data
+    global data_process
+    global labels
     response_data = {}
-    response_data['vader_analyzer_data'] = vader_analyzer_data
-    response_data['process_time_data'] = process_time_data
+    response_data['data_process'] = data_process
+    response_data['labels'] = labels
     return response_data
 
 
@@ -42,21 +42,7 @@ def getvalor():
 
 @app.route('/plot',methods=['GET'])
 def plotter():
-    data = [
-        ("01-01-2020",1597),
-        ("02-01-2020",1600),
-        ("03-01-2020",1400),
-        ("04-01-2020",1250),
-        ("05-01-2020",1369),
-        ("06-01-2020",1800),
-        ("07-01-2020",1960),
-        ("08-01-2020",1000)
-    ]
-    labels = [row[0] for row in data]
-    values = [row[1] for row in data]
-
-
-    return render_template("grafico.html",labels = labels,values = values)
+    return render_template("grafico.html")
 
 if __name__ == '__main__':
     app.run(debug=True,port=5000)
