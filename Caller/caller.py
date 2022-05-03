@@ -97,5 +97,5 @@ def sent_information(text, conection):
 if __name__ == "__main__":
     #get_crypto_gdelt()
     get_cripto_notice()
-    #get_crypto_tweets()
+    get_crypto_tweets()
     pass
