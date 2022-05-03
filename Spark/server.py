@@ -26,7 +26,7 @@ def data_serialize(rdd):
     #Creacion de dataframe de ventana de trabajo
     rowRdd = rdd.map(lambda x: Row( fuente = x[0],url=x[1],news = x[2],notice_date=x[3],\
         vader_polarity = vader_analyzer.polarity_scores(x[2])['compound']\
-            ,textblob_polarity = TextBlob(x[3]).sentiment.polarity,\
+            ,textblob_polarity = TextBlob(x[2]).sentiment.polarity,\
                 process_time = x[4]))
 
     df = spark.createDataFrame(rowRdd) #Almacenamos los datos temporalmente
