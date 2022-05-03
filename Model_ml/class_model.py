@@ -48,3 +48,6 @@ class ModelRandForest():
             probabilidad = probabilidad[2]
         
         return probabilidad
+
+# pepe = ModelRandForest('iudewfiuwbfewiu')
+# probabilidad = pepe.predict()
