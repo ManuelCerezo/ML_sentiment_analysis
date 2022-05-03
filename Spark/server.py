@@ -1,5 +1,4 @@
 import requests
-from typing import Text
 from pyspark import Row, SparkContext
 from pyspark.streaming import StreamingContext
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
