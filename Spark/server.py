@@ -29,8 +29,8 @@ def data_serialize(rdd):
     print(type(rdd))
     #print(rdd.collect())
     df = rdd.toDF(['fuente','url','notice','notice-date','process-date'])
-    df = df.withColumn("notice", apply_vader(col('vader-polarity')))
-    df = df.withColumn("notice", apply_textBlob(col('textBlob-polarity')))
+    df = df.withColumn("vader-polarity", apply_vader(col('notice')))
+    df = df.withColumn("textBlob-polarity", apply_textBlob(col('notice')))
     #df = spark.createDataFrame(['data0','data1','data2','data3','data4'],rdd[0])
     #Creacion de dataframe de ventana de trabajo
     # rowRdd = rdd.map(lambda x: Row( fuente = x[0],url=x[1],news = x[2],notice_date=x[3],\
