@@ -8,7 +8,7 @@ from textblob import TextBlob
 from pyspark.sql.functions import udf
 from pyspark.sql.types import FloatType
 from pyspark.sql.functions import *
-from Model_ml.class_model import ModelRandForest
+#from class_model import
 
 
 #Inicializacion de Contexto1
@@ -24,13 +24,13 @@ lines = ssc.socketTextStream("localhost",12345)
 #Inicializacion de Funciones UDF
 apply_vader = udf(lambda x: vader_analyzer.polarity_scores(x)['compound'],FloatType())
 apply_textBlob = udf(lambda x: TextBlob(x).sentiment.polarity,FloatType())
-apply_mymodel = udf(lambda x: ModelRandForest(x).predict(),FloatType())
+#apply_mymodel = udf(lambda x: ModelRandForest(x).predict(),FloatType())
 
 def data_serialize(rdd):    
     df = rdd.toDF(['fuente','url','notice','notice_date','process_date'])
     df = df.withColumn("vader_polarity", apply_vader(col('notice')))
     df = df.withColumn("textBlob_polarity", apply_textBlob(col('notice')))
-    df = df.withColumn("mymodel_polarity", apply_mymodel(col('notice')))
+    #df = df.withColumn("mymodel_polarity", apply_mymodel(col('notice')))
     df.createOrReplaceTempView("cryptonews")
     send_to_server()
 
@@ -46,10 +46,10 @@ def send_to_server():
     df.show(5)
 
 
-    data_to_sent['labels'] = df.select("process_date").toPandas().values.tolist()
-    data_to_sent['vader'] = df.select("vader_polarity").toPandas().values.tolist()
-    data_to_sent['textblob'] = df.select("textBlob_polarity").toPandas().values.tolist()
-    data_to_sent['mymodel'] = df.select("mymodel_polarity").toPandas().values.tolist()
+    data_to_sent['labels'] = df.select("process_date").toPandas().values.T.tolist()[0]
+    data_to_sent['vader'] = df.select("vader_polarity").toPandas().values.T.tolist()[0]
+    data_to_sent['textblob'] = df.select("textBlob_polarity").toPandas().values.T.tolist()[0]
+    #data_to_sent['mymodel'] = df.select("mymodel_polarity").toPandas().values.T.tolist()[0]
 
     
     r = requests.post('http://localhost:5000/puerta-enlace/setdatos', json={
