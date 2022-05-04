@@ -40,9 +40,9 @@ def send_to_server():
     ##### SEND TO WEB SERVER ####
     df = spark.sql('select vader_polarity, textBlob_polarity, process_date from cryptonews')
     df.show(5)
-    data_to_sent['labels'] = df.select("process_date").toPandas().values.tolist()
-    data_to_sent['vader'] = df.select("vader_polarity").toPandas().values.tolist()
-    data_to_sent['textblob'] = df.select("textBlob_polarity").toPandas().values.tolist()
+    data_to_sent['labels'] = df.select("process_date").toPandas().values.T.tolist()[0]
+    data_to_sent['vader'] = df.select("vader_polarity").toPandas().values.T.tolist()[0]
+    data_to_sent['textblob'] = df.select("textBlob_polarity").toPandas().values.T.tolist()[0]
 
     
     r = requests.post('http://localhost:5000/puerta-enlace/setdatos', json={

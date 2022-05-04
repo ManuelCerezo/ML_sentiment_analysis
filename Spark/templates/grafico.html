@@ -65,12 +65,14 @@
                 'http://localhost:5000/puerta-enlace/getdatos',      // At this URL
                 {},                                // With no extra parameters
                 function(data){
-                  var i = 0
-                  
-                  for(i = 0;i<data.labels.length;i++){
-                    //Modificar data por que es un diccionario
-                    addData(myChart,data.labels[i],data.data[i])
-                  }
+                  // var i = 0
+                  //console.log(data.labels[0][0])
+                  //console.log(data.data.vader[0][0])
+                  console.log(data)
+                  // for(i = 0;i<data.labels.length;i++){
+                  //   //Modificar data por que es un diccionario
+                  //   addData(myChart,data.labels[i][0],data.data.vader[i][0])
+                  // }
                 }
             );
           },3000); 
