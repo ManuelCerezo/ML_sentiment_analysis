@@ -16,6 +16,9 @@ from pyspark.ml.feature import Tokenizer
 from pyspark.ml.feature import StopWordsRemover
 from pyspark.ml.feature import HashingTF, IDF
 
+import findspark
+findspark.init()
+
 CODE_SPLIT ='A9RTp15Z'
 
 #Inicializacion de Contexto1

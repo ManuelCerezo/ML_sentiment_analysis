@@ -15,12 +15,13 @@
   </head>
   <body>
     <div>
+      <h1>Tiempo actualizacion: 2s</h1>
       <canvas id="myChart"></canvas>
     </div>
 
     <script>
-    const MAX_DATE = 1000
-    const MAX_DATA_REMOVE = 120
+    const MAX_DATE = 600
+    const MAX_DATA_REMOVE = 70
     var date_count = 0
 
     function addData(chart, label, dataVader,textblob,mymodel) {
@@ -83,6 +84,7 @@
                 function(data){
                   var i = 0
                   //console.log(data)
+                  date_count = date_count + (data.labels.length*3)
                   if(date_count >= MAX_DATE){
                     removeData(myChart)
                     date_count = date_count - MAX_DATA_REMOVE
@@ -92,11 +94,10 @@
                     addData(myChart,data.labels[i],data.data.vader[i],data.data.textblob[i],data.data.mymodel[i])
                   }
                   console.log(myChart.data.datasets[1].data)
-                  date_count = date_count + (data.labels.length*3)
                   console.log("datos mostrando:",date_count)
                 }
             );
-          },5000); 
+          },6000); 
     </script>
     
   </body>

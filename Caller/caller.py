@@ -5,6 +5,8 @@ import requests
 import tweepy
 import socket
 
+import findspark
+findspark.init()
 
 #SPARK REQUIRENENTS
 from pyspark import SparkContext
