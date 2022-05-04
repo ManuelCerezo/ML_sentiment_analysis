@@ -33,7 +33,7 @@ from pyspark.ml.feature import HashingTF, IDF
 from pyspark.ml.classification import RandomForestClassificationModel
 
 
-rf_model = RandomForestClassificationModel.load("./Model_RF_V1")
+rf_model = RandomForestClassificationModel.load("./Spark/Model_RF_V1")
  
 # Para que funcione la clase es necesario que se cree primero 
 # el modelo contenido en RandomForest.ipnb
@@ -69,13 +69,39 @@ def predict(data):
 #Inicializacion de Funciones UDF
 apply_vader = udf(lambda x: vader_analyzer.polarity_scores(x)['compound'],FloatType())
 apply_textBlob = udf(lambda x: TextBlob(x).sentiment.polarity,FloatType())
-apply_mymodel = udf(lambda x: predict(x),FloatType())
+#apply_mymodel = udf(lambda x: predict(x),FloatType())
+
+def apply_myModel(df):
+    tokenization=Tokenizer(inputCol='_3',outputCol='tokens')
+    tokenized_df=tokenization.transform(df)
+    stopword_removal=StopWordsRemover(inputCol='tokens',outputCol='refined_tokens')
+    refined_df=stopword_removal.transform(tokenized_df)
+    hashingTF = HashingTF(inputCol="refined_tokens", outputCol="rawFeatures", numFeatures=20)
+    featurizedData = hashingTF.transform(refined_df)
+
+    idf = IDF(inputCol="rawFeatures", outputCol="features")
+    idfModel = idf.fit(featurizedData)
+    rescaledData = idfModel.transform(featurizedData)
+    predictions = rf_model.transform(rescaledData)
+    
+    return predictions
+
 
 def data_serialize(rdd):    
+    df = rdd.toDF()
 
-    rowRdd = rdd.map(lambda x: Row(fuente = x[0], url = x[1], notice = x[2], notice_date = x[3], process_date = x[4], myModel = predict(x[2])))
-    df1 = spark.createDataFrame(rowRdd)
-    df1.show(2)
+    df = df.withColumn("vader_polarity", apply_vader(col('_3')))
+    df = df.withColumn("textBlob_polarity", apply_textBlob(col('_3')))
+    df = apply_myModel(df)
+    df = df.withColumn("textBlob_polarity", apply_textBlob(col('_3')))
+    df = df.withColumn("myModel_polarity", col('prediction'))
+
+    df = df.drop(*("tokens", "refined_tokens", "rawFeatures", "features", "rawPrediction", "prediction"))
+
+    df.show(2)
+    #rowRdd = rdd.map(lambda x: Row(fuente = x[0], url = x[1], notice = x[2], notice_date = x[3], process_date = x[4], myModel = predict(x[2])))
+    #df1 = spark.createDataFrame(rowRdd)
+    #df1.show(2)
     # df = rdd.toDF(['fuente','url','notice','notice_date','process_date'])
     # df = df.withColumn("vader_polarity", apply_vader(col('notice')))
     # df = df.withColumn("textBlob_polarity", apply_textBlob(col('notice')))
