@@ -38,10 +38,10 @@ rf_model = RandomForestClassificationModel.load("./Model_RF_V1")
 # Para que funcione la clase es necesario que se cree primero 
 # el modelo contenido en RandomForest.ipnb
 
-def predict(df):
-
-    tokenization=Tokenizer(inputCol='notice',outputCol='tokens')
-    tokenized_df=tokenization.transform(df)
+def predict(data):
+    df1 = spark.createDataFrame([(data,)], ["news"])
+    tokenization=Tokenizer(inputCol='news',outputCol='tokens')
+    tokenized_df=tokenization.transform(df1)
     stopword_removal=StopWordsRemover(inputCol='tokens',outputCol='refined_tokens')
     refined_df=stopword_removal.transform(tokenized_df)
     hashingTF = HashingTF(inputCol="refined_tokens", outputCol="rawFeatures", numFeatures=20)
@@ -61,8 +61,9 @@ def predict(df):
     elif probabilidad[2] >(probabilidad[0] and probabilidad[1]):#positivo
         #print('positivo')
         probabilidad = probabilidad[2]
-    
-    return probabilidad
+    print(float(probabilidad))
+    print("siguiente")
+    return float(probabilidad)
 
 
 #Inicializacion de Funciones UDF
@@ -72,16 +73,16 @@ apply_mymodel = udf(lambda x: predict(x),FloatType())
 
 def data_serialize(rdd):    
 
-    # rowRdd = rdd.map(lambda x: Row(fuente = x[0], url = x[1], notice = x[2], notice_date = x[3], process_date = x[4], mymodel = ModelRandForest(x[2]).predict()))
-    # #df1 = spark.createDataFrame(rowRdd)
-    # rowRdd.collect()
-    df = rdd.toDF(['fuente','url','notice','notice_date','process_date'])
-    df = df.withColumn("vader_polarity", apply_vader(col('notice')))
-    df = df.withColumn("textBlob_polarity", apply_textBlob(col('notice')))
-    df = df.withColumn("mymodel_polarity", apply_mymodel(col('notice')))
+    rowRdd = rdd.map(lambda x: Row(fuente = x[0], url = x[1], notice = x[2], notice_date = x[3], process_date = x[4], myModel = predict(x[2])))
+    df1 = spark.createDataFrame(rowRdd)
+    df1.show(2)
+    # df = rdd.toDF(['fuente','url','notice','notice_date','process_date'])
+    # df = df.withColumn("vader_polarity", apply_vader(col('notice')))
+    # df = df.withColumn("textBlob_polarity", apply_textBlob(col('notice')))
+    # df = df.withColumn("mymodel_polarity", apply_mymodel(col('notice')))
 
-    df.createOrReplaceTempView("cryptonews")
-    df.show(2)
+    # df.createOrReplaceTempView("cryptonews")
+    # df.show(2)
     #send_to_server()
 
     
