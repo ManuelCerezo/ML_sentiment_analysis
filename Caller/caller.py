@@ -38,15 +38,20 @@ def get_cripto_notice():
     active_while = True
     global conn
     while (active_while):
-        sourceCode = requests.get(url= BASE_URL.format(num_page), headers= HEADERS, timeout=5).text
-        sourceCode = BeautifulSoup(sourceCode, 'html.parser')
+        try:
+            sourceCode = requests.get(url= BASE_URL.format(num_page), headers= HEADERS, timeout=10).text
+            sourceCode = BeautifulSoup(sourceCode, 'html.parser')
+        except:
+            pass
         if not sourceCode.find('h5',class_='card__title mb-0'):
             active_while = False
 
         for notice , fecha in zip(sourceCode.find_all('h5',class_='card__title mb-0'),sourceCode.find_all('h5',class_='card__date')):
             now = datetime.datetime.now() 
             #print("cointmarket"+";"+BASE_URL.format(num_page)+";"+notice.text+";"+str(datetime.datetime.strptime(fecha.text, '%d %b %Y').date())+";"+str(now.time())+"\n")
-            sent_information("cointmarket"+";"+BASE_URL.format(num_page)+";"+notice.text+";"+str(datetime.datetime.strptime(fecha.text, '%d %b %Y').date())+";"+str(now.time())+"\n",conn)
+            sent_information("cointmarket"+"/"+BASE_URL.format(num_page)+"/"+notice.text+"/"+str(datetime.datetime.strptime(fecha.text, '%d %b %Y').date())+"/"+str(now.time())+"\n",conn)
+            if '/' in notice.text:
+                print("contiene: /")
             cantidad = cantidad + 1
     
         num_page = num_page + 1
