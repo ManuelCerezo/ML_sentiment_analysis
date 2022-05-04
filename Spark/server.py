@@ -8,13 +8,15 @@ from textblob import TextBlob
 from pyspark.sql.functions import udf
 from pyspark.sql.types import FloatType
 from pyspark.sql.functions import *
+from class_model import ModelRandForest,sc
+from pyspark.ml.classification import RandomForestClassificationModel
 
 
 #Inicializacion de Contexto1
 import findspark
 import pandas as pd
 findspark.init()
-sc = SparkContext(appName="SERVER")
+sc = SparkContext.getOrCreate(sc)
 sc.setLogLevel("ERROR")
 spark = SparkSession(sc)
 vader_analyzer = SentimentIntensityAnalyzer()
@@ -30,7 +32,7 @@ from pyspark.ml.feature import Tokenizer
 from pyspark.ml.feature import StopWordsRemover
 from pyspark.ml.feature import HashingTF, IDF
 
-from pyspark.ml.classification import RandomForestClassificationModel
+
 
 
 rf_model = RandomForestClassificationModel.load("./Model_RF_V1")
@@ -38,51 +40,27 @@ rf_model = RandomForestClassificationModel.load("./Model_RF_V1")
 # Para que funcione la clase es necesario que se cree primero 
 # el modelo contenido en RandomForest.ipnb
 
-def predict(data):
-    df1 = spark.createDataFrame([(data,)], ["news"])
-    tokenization=Tokenizer(inputCol='news',outputCol='tokens')
-    tokenized_df=tokenization.transform(df1)
-    stopword_removal=StopWordsRemover(inputCol='tokens',outputCol='refined_tokens')
-    refined_df=stopword_removal.transform(tokenized_df)
-    hashingTF = HashingTF(inputCol="refined_tokens", outputCol="rawFeatures", numFeatures=20)
-    featurizedData = hashingTF.transform(refined_df)
-
-    idf = IDF(inputCol="rawFeatures", outputCol="features")
-    idfModel = idf.fit(featurizedData)
-    rescaledData = idfModel.transform(featurizedData)
-    predictions = rf_model.transform(rescaledData)
-    probabilidad = predictions.head().probability
-    if probabilidad[0] > (probabilidad[1] and probabilidad[2]):#negativo
-        #print('negativo')
-        probabilidad = probabilidad[0]*-1
-    elif probabilidad[1] > (probabilidad[0] and probabilidad[2]):#neutro
-        #print('neutro')
-        probabilidad = 1 - probabilidad[1]
-    elif probabilidad[2] >(probabilidad[0] and probabilidad[1]):#positivo
-        #print('positivo')
-        probabilidad = probabilidad[2]
-    print(float(probabilidad))
-    print("siguiente")
-    return float(probabilidad)
 
 
 #Inicializacion de Funciones UDF
 apply_vader = udf(lambda x: vader_analyzer.polarity_scores(x)['compound'],FloatType())
 apply_textBlob = udf(lambda x: TextBlob(x).sentiment.polarity,FloatType())
-apply_mymodel = udf(lambda x: predict(x),FloatType())
 
 def data_serialize(rdd):    
 
-    rowRdd = rdd.map(lambda x: Row(fuente = x[0], url = x[1], notice = x[2], notice_date = x[3], process_date = x[4], myModel = predict(x[2])))
-    df1 = spark.createDataFrame(rowRdd)
-    df1.show(2)
-    # df = rdd.toDF(['fuente','url','notice','notice_date','process_date'])
-    # df = df.withColumn("vader_polarity", apply_vader(col('notice')))
-    # df = df.withColumn("textBlob_polarity", apply_textBlob(col('notice')))
-    # df = df.withColumn("mymodel_polarity", apply_mymodel(col('notice')))
+    values = []
+    values.append(rdd.map(lambda x: x[2]).collect())
+    # df1 = spark.createDataFrame(rowRdd)
+    # df1.show(2)
+    df = rdd.toDF(['fuente','url','notice','notice_date','process_date'])
+    df = df.withColumn("vader_polarity", apply_vader(col('notice')))
+    df = df.withColumn("textBlob_polarity", apply_textBlob(col('notice')))
+    #df = df.withColumn("mymodel_polarity", apply_mymodel(col('notice')))
 
-    # df.createOrReplaceTempView("cryptonews")
-    # df.show(2)
+    df.createOrReplaceTempView("cryptonews")
+    df.show(2)
+    probabilidad = ModelRandForest(values[0]).predict()
+    print(probabilidad)
     #send_to_server()
 
     
