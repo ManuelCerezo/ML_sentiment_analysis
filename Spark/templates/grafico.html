@@ -19,41 +19,45 @@
     </div>
 
     <script>
-    var cant_datos = 0    
+    const MAX_DATE = 500
+    const MAX_DATA_REMOVE = 100
+    var date_count = 0
+
     function addData(chart, label, dataVader,textblob) {
       chart.data.labels.push(label)
       chart.data.datasets[0].data.push(dataVader)
       chart.data.datasets[1].data.push(textblob)
       chart.update();
     }
-    function removeData(chart) {
-      console.log("removing")
-      chart.data.labels.pop();
-      chart.data.datasets.forEach((dataset) => {
-          dataset.data.pop();
-      });
-      chart.update();
-}
 
+    function removeData(chart){
+      var i = 0
+      for (i=0;i<MAX_DATA_REMOVE;i++){
+        chart.data.labels.pop();
+        chart.data.datasets[0].data.pop()
+        chart.data.datasets[1].data.pop()
+        chart.update();
+      }
+      
+    }
+    
     </script>
 
     <script>
-      var labels = [
-        '',
-      ];
+
       const data = {
-        labels: labels,
+        labels: [''],
         datasets: [
           {
           label: 'VaderSentiment',
           backgroundColor: 'rgb(255, 99, 132)',
           borderColor: 'rgb(255, 99, 132)',
-          data: [0,0],
+          data: [0],
         },{
           label: 'TextBlob',
           backgroundColor: 'rgb(25, 99, 132)',
           borderColor: 'rgb(205, 99, 132)',
-          data: [0,0],
+          data: [0],
         }
       
       ],
@@ -75,17 +79,16 @@
                 {},                                // With no extra parameters
                 function(data){
                   var i = 0
-
-                  console.log(data)
-                  for(i = 0;i<cant_datos;i++){
+                  
+                  if(date_count >= MAX_DATE){
                     removeData(myChart)
+                    date_count = date_count - MAX_DATA_REMOVE
                   }
+
                   for(i = 0;i<data.labels.length;i++){
-                    //Modificar data por que es un diccionario
                     addData(myChart,data.labels[i],data.data.vader[i],data.data.textblob[i])
                   }
-                  console.log("cant_datos: ",cant_datos, "data.labels.length: ",data.labels.length)
-                  cant_datos = data.labels.length
+                  date_count = date_count + labels.length
                 }
             );
           },5000); 
