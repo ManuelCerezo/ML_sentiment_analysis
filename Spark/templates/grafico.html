@@ -19,7 +19,7 @@
     </div>
 
     <script>
-    const MAX_DATE = 500
+    const MAX_DATE = 300
     const MAX_DATA_REMOVE = 100
     var date_count = 0
 
@@ -30,15 +30,11 @@
       chart.update();
     }
 
-    function removeData(chart){
-      var i = 0
-      for (i=0;i<MAX_DATA_REMOVE;i++){
-        chart.data.labels.pop();
-        chart.data.datasets[0].data.pop()
-        chart.data.datasets[1].data.pop()
-        chart.update();
-      }
-      
+    function removeData(chart){  
+      chart.data.labels.splice(0,MAX_DATA_REMOVE);
+      chart.data.datasets[0].data.splice(0,MAX_DATA_REMOVE)
+      chart.data.datasets[1].data.splice(0,MAX_DATA_REMOVE)
+      chart.update();
     }
     
     </script>
@@ -88,7 +84,9 @@
                   for(i = 0;i<data.labels.length;i++){
                     addData(myChart,data.labels[i],data.data.vader[i],data.data.textblob[i])
                   }
-                  date_count = date_count + labels.length
+                  console.log(myChart.data.datasets[1].data)
+                  date_count = date_count + data.labels.length
+                  console.log("datos mostrando:",date_count)
                 }
             );
           },5000); 
