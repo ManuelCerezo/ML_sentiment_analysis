@@ -19,8 +19,6 @@ from pyspark.ml.feature import HashingTF, IDF
 CODE_SPLIT ='A9RTp15Z'
 
 #Inicializacion de Contexto1
-import findspark
-findspark.init()
 sc = SparkContext(appName="SERVER")
 sc.setLogLevel("ERROR")
 spark = SparkSession(sc)

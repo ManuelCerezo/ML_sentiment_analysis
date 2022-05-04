@@ -7,8 +7,6 @@ import socket
 
 
 #SPARK REQUIRENENTS
-import findspark
-findspark.init()
 from pyspark import SparkContext
 sc = SparkContext(appName="CALLER")
 
