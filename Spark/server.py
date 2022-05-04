@@ -1,14 +1,12 @@
 import requests
 from pyspark import SparkContext
 from pyspark.streaming import StreamingContext
-from soupsieve import select
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 from pyspark.sql.session import SparkSession
 from textblob import TextBlob
 from pyspark.sql.functions import udf
 from pyspark.sql.types import FloatType
 from pyspark.sql.functions import *
-from pyspark.sql.types import *
 from pyspark.ml.classification import RandomForestClassificationModel
 
 #Required libraries for implementing model
@@ -55,10 +53,11 @@ def apply_myModel(df):
 
 def data_serialize(rdd):
     global indice  
-    df = rdd.toDF(['fuente','url','notice','notice_date','process_time'])
-    df = df.withColumn("vader_polarity", apply_vader(col('notice')))
-    df = df.withColumn("textBlob_polarity", apply_textBlob(col('notice')))
+    df = rdd.toDF(['notice','process_time'])
+
+    
     df = apply_myModel(df)
+    df = df.withColumn("vader_polarity", apply_vader(col('notice')))
     df = df.withColumn("textBlob_polarity", apply_textBlob(col('notice')))
     df = df.withColumn("myModel_prediction", apply_cast_mymodel(col('prediction')))
 
@@ -73,7 +72,7 @@ def send_to_server():
     global spark
     global indice
     data_to_sent = {}
-    df = spark.sql('select vader_polarity, textBlob_polarity, myModel_prediction,process_time from cryptonews')
+    df = spark.sql('select vader_polarity, textBlob_polarity, myModel_prediction, process_time from cryptonews')
     print("cantidad: ",df.count())
     print("total datos: ",(df.count()*3))
 
@@ -90,10 +89,23 @@ def send_to_server():
         "data": data_to_sent
     })
     
-
+def isEmpty(rdd):
+    if not rdd.toDF().take(1):
+        print("Esta vacio")
+        return False
+    else:
+        print("Esta open")
+        return True
 
 #===================== Procesamiento de los datos =======================
-lines.window(5,2).map(lambda x:x.split(CODE_SPLIT)).foreachRDD(data_serialize)
+
+# print("cantidad datos server: ",lines.count())
+
+lines.pprint()
+
+# if lines.window(5,2).foreachRDD(isEmpty):
+#     lines.window(5,2).map(lambda x:x.split(CODE_SPLIT)).foreachRDD(data_serialize)
+
 #========================================================================
 #Fin del Bucle
 ssc.start()

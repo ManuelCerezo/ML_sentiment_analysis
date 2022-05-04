@@ -1,5 +1,7 @@
 #CALLER PYTHON REQUIREMENTS
 import datetime
+from time import sleep
+import time
 from bs4 import BeautifulSoup
 import requests
 import tweepy
@@ -16,6 +18,8 @@ sc = SparkContext(appName="CALLER")
 # from config_twitter_access import TWITTER_BAREER_TOKEN
 # client = client = tweepy.Client(TWITTER_BAREER_TOKEN)
 
+#METADATA
+CODE_SPLIT ='A9RTp15Z'
 
 #CALLER METADATA
 HEADERS = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36'}
@@ -50,9 +54,11 @@ def get_cripto_notice():
 
         for notice , fecha in zip(sourceCode.find_all('h5',class_='card__title mb-0'),sourceCode.find_all('h5',class_='card__date')):
             now = datetime.datetime.now() 
-            #print("cointmarket"+";"+BASE_URL.format(num_page)+";"+notice.text+";"+str(datetime.datetime.strptime(fecha.text, '%d %b %Y').date())+";"+str(now.time())+"\n")
-            sent_information("cointmarket"+"A9RTp15Z"+BASE_URL.format(num_page)+"A9RTp15Z"+notice.text+"A9RTp15Z"+str(datetime.datetime.strptime(fecha.text, '%d %b %Y').date())+"A9RTp15Z"+str(now.time())+"\n",conn)
-
+            #Send date with all information:
+            #sent_information("cointmarket"+"A9RTp15Z"+BASE_URL.format(num_page)+"A9RTp15Z"+notice.text+"A9RTp15Z"+str(datetime.datetime.strptime(fecha.text, '%d %b %Y').date())+"A9RTp15Z"+str(now.time())+"\n",conn)
+            
+            #Send date with notice and time processing
+            sent_information(notice.text+CODE_SPLIT+str(now.time())+"\n",conn)
             cantidad = cantidad + 1
     
         num_page = num_page + 1
@@ -67,17 +73,23 @@ def get_cripto_notice():
 #         print(deEmojify(tweet.text))
 
 def get_crypto_gdelt():
+    global conn
     queries =['(crypto OR cryptocurrencies)']
     cantidad = 0
     
     for query in queries:
-        request = requests.get(url=GELPH_API_URL.format(query)).json()     
+        request = requests.get(url=GELPH_API_URL.format(query)).json()
+        print(request['articles']['title'])
         for article in request['articles']:
-            print(article['seendate'][0:4]+'-'+article['seendate'][4:6]+"-"+article['seendate'][6:8])
+            now = datetime.datetime.now() 
+            #print(article['seendate'][0:4]+'-'+article['seendate'][4:6]+"-"+article['seendate'][6:8])
 
-            print((article['url']+" ; "+article["title"]+" ; "+article['seendate']),'\n')
-           # print(datetime.datetime.strptime(article['seendate'],'%Y%m%d %f %Z'))
-            cantidad = cantidad +1
+            print(article["title"]+CODE_SPLIT+str(now.time()))
+            sent_information(article["title"]+CODE_SPLIT+str(now.time()),conn)
+            time.sleep(100)
+
+        cantidad = cantidad +1
+            
 
     # PARA TESTEAR
     # request = requests.get(url='https://api.gdeltproject.org/api/v2/doc/doc?query=ethereum%20sourcelang:eng%20&maxrecords=250&timespan=1day&sort=datedesc&format=JSON').json()
@@ -91,10 +103,11 @@ def deEmojify(inputString): #quitar emoji a tweets
 
 def sent_information(text, conection):
     conection.send(text.encode('utf-8'))
+    print("se ha mandao")
     pass
 
 if __name__ == "__main__":
-    #get_crypto_gdelt()
-    get_cripto_notice()
+    get_crypto_gdelt()
+    #get_cripto_notice()
     #get_crypto_tweets()
     pass
