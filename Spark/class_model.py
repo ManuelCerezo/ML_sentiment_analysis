@@ -2,7 +2,7 @@ import findspark
 import pandas as pd
 findspark.init()
 import pyspark
-sc = pyspark.SparkContext(appName="LOGISTICREG")
+sc = pyspark.SparkContext(appName="MODELO")
 from pyspark.sql.session import SparkSession
 spark = SparkSession(sc)
 
@@ -47,7 +47,8 @@ class ModelRandForest():
             #print('positivo')
             probabilidad = probabilidad[2]
         
-        return probabilidad
+        return float(probabilidad)
 
 # pepe = ModelRandForest('iudewfiuwbfewiu')
 # probabilidad = pepe.predict()
+# print(type(probabilidad))
