@@ -49,13 +49,11 @@ def get_cripto_notice():
         for notice , fecha in zip(sourceCode.find_all('h5',class_='card__title mb-0'),sourceCode.find_all('h5',class_='card__date')):
             now = datetime.datetime.now() 
             #print("cointmarket"+";"+BASE_URL.format(num_page)+";"+notice.text+";"+str(datetime.datetime.strptime(fecha.text, '%d %b %Y').date())+";"+str(now.time())+"\n")
-            sent_information("cointmarket"+"/"+BASE_URL.format(num_page)+"/"+notice.text+"/"+str(datetime.datetime.strptime(fecha.text, '%d %b %Y').date())+"/"+str(now.time())+"\n",conn)
-            if '/' in notice.text:
-                print("contiene: /")
+            sent_information("cointmarket"+"A9RTp15Z"+BASE_URL.format(num_page)+"A9RTp15Z"+notice.text+"A9RTp15Z"+str(datetime.datetime.strptime(fecha.text, '%d %b %Y').date())+"A9RTp15Z"+str(now.time())+"\n",conn)
+
             cantidad = cantidad + 1
     
         num_page = num_page + 1
-        #sent_information(line,conn)
         print("Datos mandados: ",cantidad)
         
     print('cantidad de noticias: ',cantidad)

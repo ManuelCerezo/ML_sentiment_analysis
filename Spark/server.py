@@ -9,9 +9,8 @@ from pyspark.sql.functions import udf
 from pyspark.sql.types import FloatType
 from pyspark.sql.functions import *
 from pyspark.sql.types import *
-#from class_model import
 
-
+CODE_SPLIT ='A9RTp15Z'
 
 #Inicializacion de Contexto1
 sc = SparkContext(appName="SERVER")
@@ -23,61 +22,43 @@ vader_analyzer = SentimentIntensityAnalyzer()
 ssc = StreamingContext(sc,1) #lectura cada 3s
 lines = ssc.socketTextStream("localhost",12345)
 
-indice = 0
-
 #Inicializacion de Funciones UDF
 apply_vader = udf(lambda x: vader_analyzer.polarity_scores(x)['compound'],FloatType())
 apply_textBlob = udf(lambda x: TextBlob(x).sentiment.polarity,FloatType())
-#apply_mymodel = udf(lambda x: ModelRandForest(x).predict(),FloatType())
 
 
 def data_serialize(rdd):
     global indice  
-    df = rdd.toDF(['fuente','url','notice','notice_date','process_date'])
-    #df = df.withColumn("vader_polarity", apply_vader(col('notice')))
-    #df = df.withColumn("textBlob_polarity", apply_textBlob(col('notice')))
-    #df = df.withColumn("mymodel_polarity", apply_mymodel(col('notice')))
-    df.createOrReplaceTempView("cryptonews"+str(indice))
-    #df.show()
+    df = rdd.toDF(['fuente','url','notice','notice_date','process_time'])
+    df = df.withColumn("vader_polarity", apply_vader(col('notice')))
+    df = df.withColumn("textBlob_polarity", apply_textBlob(col('notice')))
+    
+    df.createOrReplaceTempView("cryptonews")
     send_to_server()
 
-    
 
+##### SEND TO WEB SERVER ####
 def send_to_server():
     global spark
     global indice
     data_to_sent = {}
-
-    ## obtener datos del dataframe
-    ##### SEND TO WEB SERVER ####
-    #df = spark.sql('select vader_polarity, textBlob_polarity, process_date from cryptonews')
-    df = spark.sql('select * from cryptonews'+str(indice))
+    df = spark.sql('select vader_polarity, textBlob_polarity, process_time from cryptonews')
     
-    #df.show()
-    
-
     try:
-        data_to_sent['labels'] = df.select('fuente').rdd.flatMap(lambda x: x).collect()
-        print("funciona..")
-        #print(data_to_sent['labels'])
+        data_to_sent['labels'] = df.select('process_time').rdd.flatMap(lambda x: x).collect()
+        data_to_sent['vader'] = df.select("vader_polarity").rdd.flatMap(lambda x: x).collect()
+        data_to_sent['textblob'] = df.select("textBlob_polarity").rdd.flatMap(lambda x: x).collect()
     except:
-        print("da fallo..")
-        print(df.select('process_date').rdd.flatMap(lambda x: x).collect())
-        
-    # data_to_sent['vader'] = df.select("vader_polarity").toPandas().values.T.tolist()[0]
-    # data_to_sent['textblob'] = df.select("textBlob_polarity").toPandas().values.T.tolist()[0]
-
-    #data_to_sent['mymodel'] = df.select("mymodel_polarity").toPandas().values.T.tolist()[0]
-
+        print("Error en recoleccion de'collect()' datos de columnas...")
     
-    # requests.post('http://localhost:5000/puerta-enlace/setdatos', json={
-    #     "data": data_to_sent
-    # })
+    requests.post('http://localhost:5000/puerta-enlace/setdatos', json={
+        "data": data_to_sent
+    })
     
 
 
 #===================== Procesamiento de los datos =======================
-lines.window(5,2).map(lambda x:x.split('/')).foreachRDD(data_serialize)
+lines.window(5,2).map(lambda x:x.split(CODE_SPLIT)).foreachRDD(data_serialize)
 #========================================================================
 #Fin del Bucle
 ssc.start()
