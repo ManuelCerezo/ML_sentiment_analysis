@@ -4,7 +4,7 @@ from flask_cors import CORS
 app = Flask(__name__,template_folder="templates")
 cors = CORS(app, resources={r"/puerta-enlace/*":{"origins":"*"}})
 
-plot = {'labels':[],'data':{'vader':[0.0],'textblob':[0.0]}}
+plot = {'labels':[],'data':{'vader':[0.0],'textblob':[0.0],'mymodel':[0.0]}}
 
 @app.route('/puerta-enlace/setdatos',methods=['POST'])
 def set_data():
@@ -13,6 +13,7 @@ def set_data():
     plot['labels'] = data['labels']
     plot['data']['vader'] = data['vader']
     plot['data']['textblob'] = data['textblob']
+    plot['data']['mymodel'] = data['mymodel']
 
     return {"status":"ok"}
 

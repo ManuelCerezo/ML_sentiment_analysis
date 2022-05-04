@@ -19,14 +19,15 @@
     </div>
 
     <script>
-    const MAX_DATE = 300
-    const MAX_DATA_REMOVE = 100
+    const MAX_DATE = 1000
+    const MAX_DATA_REMOVE = 120
     var date_count = 0
 
-    function addData(chart, label, dataVader,textblob) {
+    function addData(chart, label, dataVader,textblob,mymodel) {
       chart.data.labels.push(label)
       chart.data.datasets[0].data.push(dataVader)
       chart.data.datasets[1].data.push(textblob)
+      chart.data.datasets[2].data.push(mymodel)
       chart.update();
     }
 
@@ -34,6 +35,7 @@
       chart.data.labels.splice(0,MAX_DATA_REMOVE);
       chart.data.datasets[0].data.splice(0,MAX_DATA_REMOVE)
       chart.data.datasets[1].data.splice(0,MAX_DATA_REMOVE)
+      chart.data.datasets[2].data.splice(0,MAX_DATA_REMOVE)
       chart.update();
     }
     
@@ -53,6 +55,11 @@
           label: 'TextBlob',
           backgroundColor: 'rgb(25, 99, 132)',
           borderColor: 'rgb(205, 99, 132)',
+          data: [0],
+        },{
+          label: 'ML_propio',
+          backgroundColor: 'rgb(125, 99, 132)',
+          borderColor: 'rgb(205, 89, 203)',
           data: [0],
         }
       
@@ -75,17 +82,17 @@
                 {},                                // With no extra parameters
                 function(data){
                   var i = 0
-                  
+                  //console.log(data)
                   if(date_count >= MAX_DATE){
                     removeData(myChart)
                     date_count = date_count - MAX_DATA_REMOVE
                   }
 
                   for(i = 0;i<data.labels.length;i++){
-                    addData(myChart,data.labels[i],data.data.vader[i],data.data.textblob[i])
+                    addData(myChart,data.labels[i],data.data.vader[i],data.data.textblob[i],data.data.mymodel[i])
                   }
                   console.log(myChart.data.datasets[1].data)
-                  date_count = date_count + data.labels.length
+                  date_count = date_count + (data.labels.length*3)
                   console.log("datos mostrando:",date_count)
                 }
             );

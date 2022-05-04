@@ -7,12 +7,14 @@ import socket
 
 
 #SPARK REQUIRENENTS
+import findspark
+findspark.init()
 from pyspark import SparkContext
 sc = SparkContext(appName="CALLER")
 
 #CALLER TWITTER METADATA
-from config_twitter_access import TWITTER_BAREER_TOKEN
-client = client = tweepy.Client(TWITTER_BAREER_TOKEN)
+# from config_twitter_access import TWITTER_BAREER_TOKEN
+# client = client = tweepy.Client(TWITTER_BAREER_TOKEN)
 
 
 #CALLER METADATA
@@ -58,11 +60,11 @@ def get_cripto_notice():
         
     print('cantidad de noticias: ',cantidad)
 
-def get_crypto_tweets():
-    response = client.search_recent_tweets(' #cryptonews lang:en',max_results = 10, tweet_fields = ['created_at','lang'])
+# def get_crypto_tweets():
+#     response = client.search_recent_tweets(' #cryptonews lang:en',max_results = 10, tweet_fields = ['created_at','lang'])
     
-    for tweet in response.data:
-        print(deEmojify(tweet.text))
+#     for tweet in response.data:
+#         print(deEmojify(tweet.text))
 
 def get_crypto_gdelt():
     queries =['(crypto OR cryptocurrencies)']
