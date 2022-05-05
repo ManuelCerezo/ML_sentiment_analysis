@@ -64,10 +64,10 @@ def get_cripto_notice():
             
             #Send date with notice and time processing
             sent_information(notice.text+CODE_SPLIT+str(now.time())+'\n',conn)
+            print("(coinmarketcal.com) datos mandados: ",cantidad)
             cantidad = cantidad + 1
     
         num_page = num_page + 1
-        print("(coinmarketcal.com) datos mandados: ",cantidad)
 
 def get_crypto_tweets():
     a = 0
@@ -99,10 +99,7 @@ def get_crypto_gdelt():
         for article in request['articles']:
             now = datetime.datetime.now() 
             #print(article['seendate'][0:4]+'-'+article['seendate'][4:6]+"-"+article['seendate'][6:8])
-
-            print(article["title"]+CODE_SPLIT+str(now.time()))
             sent_information(deEmojify(article["title"])+CODE_SPLIT+str(now.time())+'\n',conn)
-            cantidad = cantidad +1
             time.sleep(0.5)
             cantidad = cantidad + 1
             print("(Gdelt) datos mandados: ",cantidad)
