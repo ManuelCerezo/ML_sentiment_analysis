@@ -6,6 +6,7 @@ from bs4 import BeautifulSoup
 import requests
 import tweepy
 import socket
+import preprocessor as p
 from config_twitter_access import TWITTER_BAREER_TOKEN
 
 import findspark
@@ -74,15 +75,20 @@ def get_crypto_tweets():
     a = 0
     global conn
     global cantidad
+
     for a in range(0,30):
         response = client.search_recent_tweets(' #cryptonews lang:en',max_results = 10, tweet_fields = ['created_at','lang'])
         for tweet in response.data:
             now = datetime.datetime.now() 
             
-            sent_information(deEmojify(tweet.text)+CODE_SPLIT+str(now.time())+'\n',conn)
-            print(deEmojify(tweet.text)+CODE_SPLIT+str(now.time())+'\n')
+            sent_information(p.clean(tweet.text)+CODE_SPLIT+str(now.time())+'\n',conn)
+            #print(p.clean(tweet.text)+CODE_SPLIT+str(now.time()))
+            time.sleep(0.5)
+        
             cantidad = cantidad + 1
             print("datos mandados: ",cantidad)
+
+
 
 def get_crypto_gdelt():
     global conn
@@ -119,7 +125,7 @@ def sent_information(text, conection):
     pass
 
 if __name__ == "__main__":
-    get_cripto_notice()
-    get_crypto_gdelt()
+    #get_cripto_notice()
+    #get_crypto_gdelt()
     get_crypto_tweets()
     pass
