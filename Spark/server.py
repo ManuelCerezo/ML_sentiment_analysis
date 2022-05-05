@@ -73,9 +73,8 @@ def send_to_server():
     global indice
     data_to_sent = {}
     df = spark.sql('select vader_polarity, textBlob_polarity, myModel_prediction, process_time from cryptonews')
-    print("cantidad: ",df.count())
-    print("total datos: ",(df.count()*3))
-
+    print("cantidad en el window: ",df.count())
+    
     try:
         data_to_sent['labels'] = df.select('process_time').rdd.flatMap(lambda x: x).collect()
         data_to_sent['vader'] = df.select("vader_polarity").rdd.flatMap(lambda x: x).collect()
