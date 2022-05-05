@@ -62,7 +62,7 @@ def get_cripto_notice():
             #sent_information("cointmarket"+"A9RTp15Z"+BASE_URL.format(num_page)+"A9RTp15Z"+notice.text+"A9RTp15Z"+str(datetime.datetime.strptime(fecha.text, '%d %b %Y').date())+"A9RTp15Z"+str(now.time())+"\n",conn)
             
             #Send date with notice and time processing
-            sent_information(notice.text+CODE_SPLIT+str(now.time()),conn)
+            sent_information(notice.text+CODE_SPLIT+str(now.time())+'\n',conn)
             cantidad = cantidad + 1
     
         num_page = num_page + 1
