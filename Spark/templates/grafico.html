@@ -16,13 +16,13 @@
   <body>
     <div>
       <h1 class="text-center mt-5">Gráficos en tiempo real</h1>
-      <h4 class="text-center text-secondary">Tiempo actualizacion: 6s</h4>
+      <h4 class="text-center text-secondary">Tiempo actualizacion: 10s</h4>
       <canvas id="myChart" class="mt-5" height="100px"></canvas>
     </div>
 
     <script>
-    const MAX_DATE = 600
-    const MAX_DATA_REMOVE = 70
+    const MAX_DATE = 1000
+    const MAX_DATA_REMOVE = 1000
     var date_count = 0
 
     function addData(chart, label, dataVader,textblob,mymodel) {
@@ -85,12 +85,12 @@
                 function(data){
                   var i = 0
                   //console.log(data)
-                  date_count = date_count + (data.labels.length*3)
+                  
                   if(date_count >= MAX_DATE){
                     removeData(myChart)
                     date_count = date_count - MAX_DATA_REMOVE
                   }
-
+                  date_count = date_count + (data.labels.length*3)
                   for(i = 0;i<data.labels.length;i++){
                     addData(myChart,data.labels[i],data.data.vader[i],data.data.textblob[i],data.data.mymodel[i])
                   }
