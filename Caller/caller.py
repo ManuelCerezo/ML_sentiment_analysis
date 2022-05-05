@@ -75,14 +75,14 @@ def get_crypto_tweets():
     a = 0
     global conn
     global cantidad
+    #themes =['#cryptonews','#cryptocurrence','#bitcoin','#Ethereum','#CNN','#cryptomarket']
 
     for a in range(0,30):
-        response = client.search_recent_tweets(' #cryptonews lang:en',max_results = 10, tweet_fields = ['created_at','lang'])
+        response = client.search_recent_tweets(' #cryptonews OR #bitcoin lang:en',max_results = 10, tweet_fields = ['created_at','lang'])
         for tweet in response.data:
             now = datetime.datetime.now() 
             
             sent_information(p.clean(tweet.text)+CODE_SPLIT+str(now.time())+'\n',conn)
-            #print(p.clean(tweet.text)+CODE_SPLIT+str(now.time()))
             time.sleep(0.5)
         
             cantidad = cantidad + 1
@@ -108,12 +108,7 @@ def get_crypto_gdelt():
             time.sleep(0.5)
             cantidad = cantidad + 1
             print("datos mandados: ",cantidad)
-            
 
-    # PARA TESTEAR
-    # request = requests.get(url='https://api.gdeltproject.org/api/v2/doc/doc?query=ethereum%20sourcelang:eng%20&maxrecords=250&timespan=1day&sort=datedesc&format=JSON').json()
-    # for request in request['articles']:
-    #     print(request['title'],'\n')
         
     print('cantidad noticias: ',cantidad)
 
@@ -125,7 +120,7 @@ def sent_information(text, conection):
     pass
 
 if __name__ == "__main__":
-    #get_cripto_notice()
-    #get_crypto_gdelt()
+    get_cripto_notice()
+    get_crypto_gdelt()
     get_crypto_tweets()
     pass

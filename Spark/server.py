@@ -99,8 +99,8 @@ def isEmptyy(rdd):
 
 #===================== Procesamiento de los datos =======================
 
-#lines.window(20,10).map(lambda x:x.split(CODE_SPLIT)).foreachRDD(data_serialize)
-lines.window(20,10).map(lambda x:x.split(CODE_SPLIT)).pprint()
+lines.window(20,10).map(lambda x:x.split(CODE_SPLIT)).foreachRDD(data_serialize)
+#lines.window(20,10).map(lambda x:x.split(CODE_SPLIT)).pprint()
 
 #========================================================================
 #Fin del Bucle
