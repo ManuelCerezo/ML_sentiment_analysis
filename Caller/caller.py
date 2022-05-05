@@ -67,9 +67,7 @@ def get_cripto_notice():
             cantidad = cantidad + 1
     
         num_page = num_page + 1
-        print("Datos mandados: ",cantidad)
-        
-    print('cantidad de noticias: ',cantidad)
+        print("(coinmarketcal.com) datos mandados: ",cantidad)
 
 def get_crypto_tweets():
     a = 0
@@ -86,7 +84,7 @@ def get_crypto_tweets():
             time.sleep(0.5)
         
             cantidad = cantidad + 1
-            print("datos mandados: ",cantidad)
+            print("(Twitter) datos mandados: ",cantidad)
 
 
 
@@ -107,7 +105,7 @@ def get_crypto_gdelt():
             cantidad = cantidad +1
             time.sleep(0.5)
             cantidad = cantidad + 1
-            print("datos mandados: ",cantidad)
+            print("(Gdelt) datos mandados: ",cantidad)
 
         
     print('cantidad noticias: ',cantidad)
