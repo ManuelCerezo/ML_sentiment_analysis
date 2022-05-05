@@ -6,6 +6,7 @@ from bs4 import BeautifulSoup
 import requests
 import tweepy
 import socket
+from config_twitter_access import TWITTER_BAREER_TOKEN
 
 import findspark
 findspark.init()
@@ -16,7 +17,7 @@ sc = SparkContext(appName="CALLER")
 
 #CALLER TWITTER METADATA
 # from config_twitter_access import TWITTER_BAREER_TOKEN
-# client = client = tweepy.Client(TWITTER_BAREER_TOKEN)
+client = client = tweepy.Client(TWITTER_BAREER_TOKEN)
 
 #METADATA
 CODE_SPLIT ='A9RTp15Z'
@@ -32,6 +33,9 @@ PORT = 12346 #puerto: 12.345
 protocolo_IPV4 = socket.AF_INET
 protocolo_TCP = socket.SOCK_STREAM
 
+
+cantidad = 0
+
 with socket.socket(protocolo_IPV4,protocolo_TCP) as mysocket: #Creación de un socket
     mysocket.bind((HOST,PORT)) #Ponemos el socket a la escucha en el host y puerto indicado
     mysocket.listen()
@@ -39,7 +43,7 @@ with socket.socket(protocolo_IPV4,protocolo_TCP) as mysocket: #Creación de un s
     conn,addr = mysocket.accept() # se queda esperando para conexiones entrantes, cuando se establece una conexion, se devuelve la conexion y la direccion entrante (socket y direccion del cliente)
 
 def get_cripto_notice():
-    cantidad = 0
+    global cantidad 
     num_page = 0
     active_while = True
     global conn
@@ -58,7 +62,7 @@ def get_cripto_notice():
             #sent_information("cointmarket"+"A9RTp15Z"+BASE_URL.format(num_page)+"A9RTp15Z"+notice.text+"A9RTp15Z"+str(datetime.datetime.strptime(fecha.text, '%d %b %Y').date())+"A9RTp15Z"+str(now.time())+"\n",conn)
             
             #Send date with notice and time processing
-            sent_information(notice.text+CODE_SPLIT+str(now.time())+"\n",conn)
+            sent_information(notice.text+CODE_SPLIT+str(now.time()),conn)
             cantidad = cantidad + 1
     
         num_page = num_page + 1
@@ -66,16 +70,24 @@ def get_cripto_notice():
         
     print('cantidad de noticias: ',cantidad)
 
-# def get_crypto_tweets():
-#     response = client.search_recent_tweets(' #cryptonews lang:en',max_results = 10, tweet_fields = ['created_at','lang'])
-    
-#     for tweet in response.data:
-#         print(deEmojify(tweet.text))
+def get_crypto_tweets():
+    a = 0
+    global conn
+    global cantidad
+    for a in range(0,30):
+        response = client.search_recent_tweets(' #cryptonews lang:en',max_results = 10, tweet_fields = ['created_at','lang'])
+        for tweet in response.data:
+            now = datetime.datetime.now() 
+            
+            sent_information(deEmojify(tweet.text)+CODE_SPLIT+str(now.time())+'\n',conn)
+            print(deEmojify(tweet.text)+CODE_SPLIT+str(now.time())+'\n')
+            cantidad = cantidad + 1
+            print("datos mandados: ",cantidad)
 
 def get_crypto_gdelt():
     global conn
     queries =['(crypto OR cryptocurrencies)']
-    cantidad = 0
+    global cantidad
     
     for query in queries:
         request = requests.get(url=GELPH_API_URL.format(query)).json()
@@ -85,9 +97,11 @@ def get_crypto_gdelt():
             #print(article['seendate'][0:4]+'-'+article['seendate'][4:6]+"-"+article['seendate'][6:8])
 
             print(article["title"]+CODE_SPLIT+str(now.time()))
-            sent_information(str(article["title"])+CODE_SPLIT+str(now.time())+'\n',conn)
+            sent_information(deEmojify(article["title"])+CODE_SPLIT+str(now.time())+'\n',conn)
             cantidad = cantidad +1
-            time.sleep(1)
+            time.sleep(0.5)
+            cantidad = cantidad + 1
+            print("datos mandados: ",cantidad)
             
 
     # PARA TESTEAR
@@ -102,11 +116,10 @@ def deEmojify(inputString): #quitar emoji a tweets
 
 def sent_information(text, conection):
     conection.send(text.encode('utf-8'))
-    print("se ha mandao")
     pass
 
 if __name__ == "__main__":
-    get_crypto_gdelt()
+    #get_crypto_gdelt()
     #get_cripto_notice()
-    #get_crypto_tweets()
+    get_crypto_tweets()
     pass

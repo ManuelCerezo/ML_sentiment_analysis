@@ -26,7 +26,7 @@ spark = SparkSession(sc)
 vader_analyzer = SentimentIntensityAnalyzer()
 
 #Inicializacion de Contexto2
-ssc = StreamingContext(sc,2) #lectura cada 3s
+ssc = StreamingContext(sc,10) #lectura cada 3s
 lines = ssc.socketTextStream("localhost",12346)
 
 #Implementamos Modelo
@@ -99,14 +99,8 @@ def isEmptyy(rdd):
 
 #===================== Procesamiento de los datos =======================
 
-# print("cantidad datos server: ",lines.count())
-
-# if lines.foreachRDD(isEmptyy):
-#     print("esta to vacio..")
-lines.pprint()
-
-# if lines.window(5,2).foreachRDD(isEmpty):
-#     lines.window(5,2).map(lambda x:x.split(CODE_SPLIT)).foreachRDD(data_serialize)
+# lines.window(20,10).map(lambda x:x.split(CODE_SPLIT)).foreachRDD(data_serialize)
+lines.window(20,10).flatMap(lambda x:x.split(CODE_SPLIT)).pprint()
 
 #========================================================================
 #Fin del Bucle
