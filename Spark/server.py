@@ -26,8 +26,8 @@ spark = SparkSession(sc)
 vader_analyzer = SentimentIntensityAnalyzer()
 
 #Inicializacion de Contexto2
-ssc = StreamingContext(sc,1) #lectura cada 3s
-lines = ssc.socketTextStream("localhost",12345)
+ssc = StreamingContext(sc,2) #lectura cada 3s
+lines = ssc.socketTextStream("localhost",12346)
 
 #Implementamos Modelo
 rf_model = RandomForestClassificationModel.load("./Model_RF_V1")
@@ -89,18 +89,20 @@ def send_to_server():
         "data": data_to_sent
     })
     
-def isEmpty(rdd):
-    if not rdd.toDF().take(1):
+def isEmptyy(rdd):
+    if rdd.isEmpty():
         print("Esta vacio")
-        return False
+        return True
     else:
         print("Esta open")
-        return True
+        return False
 
 #===================== Procesamiento de los datos =======================
 
 # print("cantidad datos server: ",lines.count())
 
+# if lines.foreachRDD(isEmptyy):
+#     print("esta to vacio..")
 lines.pprint()
 
 # if lines.window(5,2).foreachRDD(isEmpty):

@@ -28,7 +28,7 @@ GELPH_API_URL = 'https://api.gdeltproject.org/api/v2/doc/doc?query={} sourcelang
 
 #SOCKET METADATA
 HOST = "localhost"
-PORT = 12345 #puerto: 12.345
+PORT = 12346 #puerto: 12.345
 protocolo_IPV4 = socket.AF_INET
 protocolo_TCP = socket.SOCK_STREAM
 
@@ -79,16 +79,15 @@ def get_crypto_gdelt():
     
     for query in queries:
         request = requests.get(url=GELPH_API_URL.format(query)).json()
-        print(request['articles']['title'])
+
         for article in request['articles']:
             now = datetime.datetime.now() 
             #print(article['seendate'][0:4]+'-'+article['seendate'][4:6]+"-"+article['seendate'][6:8])
 
             print(article["title"]+CODE_SPLIT+str(now.time()))
-            sent_information(article["title"]+CODE_SPLIT+str(now.time()),conn)
-            time.sleep(100)
-
-        cantidad = cantidad +1
+            sent_information(str(article["title"])+CODE_SPLIT+str(now.time())+'\n',conn)
+            cantidad = cantidad +1
+            time.sleep(1)
             
 
     # PARA TESTEAR
